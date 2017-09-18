@@ -23,7 +23,7 @@ Currently, Synthea features:
 ### Installation
 
 **System Requirements:**
-Synthea requires Ruby 2.1.0 or above.
+Synthea requires Ruby 2.1.0 or above (but < 2.4 due to nokogiri).
 
 To clone the Synthea repo and install the necessary gems:
 ```

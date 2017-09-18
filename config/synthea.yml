@@ -4,12 +4,12 @@ synthea:
       export: false
       upload: null # not yet implemented
     fhir: # refers to the latest version, ie STU3
-      export: true
+      export: false
       upload: null # url of the server, ex 'http://fhirserver.example.com:8080'
       use_shr_extensions: true
       include_mrn: true
     fhir_dstu2:
-      export: false
+      export: true
       # upload: null # not implemented
       # note that there are no SHR profiles defined for DSTU2
       include_mrn: true
