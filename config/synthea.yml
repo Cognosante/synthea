@@ -1,7 +1,7 @@
 synthea:
   exporter:
     ccda:
-      export: true
+      export: false
       upload: null # not yet implemented
     fhir: # refers to the latest version, ie STU3
       export: true
