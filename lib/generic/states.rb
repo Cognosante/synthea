@@ -722,7 +722,7 @@ module Synthea
           add_lookup_code(Synthea::OBS_LOOKUP)
           if concurrent_with_target_encounter(time)
             entity.record_synthea.observation(symbol, time, @number_of_observations,
-                                              'category' => @category, 'fhir' => :multi_observation, 'ccda' => :no_action)
+                                              'category' => @category, 'fhir' => :multi_observation, 'ccda' => :multi_observation)
           else
             raise "MultiObservation '#{@name}' is not concurrent with its target encounter '#{@target_encounter}'"
           end

@@ -7,7 +7,8 @@ module Synthea
         ccda_record = ::Record.new
         basic_info(entity, ccda_record, end_time)
         synthea_record.encounters.each do |encounter|
-          encounter(encounter, ccda_record)
+          encounter(entity, encounter, ccda_record)
+
           [:conditions, :observations, :procedures, :immunizations, :careplans, :medications].each do |attribute|
             entry = synthea_record.send(attribute)[indices[attribute]]
             while entry && entry['time'] <= encounter['time']
@@ -20,6 +21,20 @@ module Synthea
             end
           end
         end
+
+        # wrap individual results into panels
+        until ccda_record.results.empty?
+          result = ccda_record.results.shift
+
+          ccda_record.panels << LabPanel.new(
+            'codes' => result.codes,
+            'description' => result.description,
+            'start_time' => result.start_time,
+            'end_time' => result.end_time,
+            'results' => [ result ]
+          )
+        end
+
         ccda_record
       end
 
@@ -71,7 +86,15 @@ module Synthea
         type = lab['type']
         time = lab['time']
         value = lab['value']
-        ccda_record.vital_signs << VitalSign.new('codes' => { 'LOINC' => [OBS_LOOKUP[type][:code]] },
+
+        target = case lab['category']
+        when 'laboratory'
+            ccda_record.results
+        else
+            ccda_record.vital_signs
+        end
+
+        target << VitalSign.new('codes' => { 'LOINC' => [OBS_LOOKUP[type][:code]] },
                                                  'description' => OBS_LOOKUP[type][:description],
                                                  'start_time' => time.to_i,
                                                  'end_time' => time.to_i,
@@ -81,6 +104,32 @@ module Synthea
                                                    'scalar' => value,
                                                    'units' => OBS_LOOKUP[type][:unit]
                                                  }])
+      end
+
+      def self.multi_observation(multi_observation, ccda_record)
+        # return if multi_observation['type'] == :blood_pressure
+        # byebug
+      end
+
+      def self.diagnostic_report(diagnostic_report, ccda_record)
+        type = diagnostic_report['type']
+        time = diagnostic_report['time']
+        numObs = diagnostic_report['numObs']
+
+        panel = LabPanel.new(
+          'codes' => { 'LOINC' => [OBS_LOOKUP[type][:code]] },
+          'description' => OBS_LOOKUP[type][:description],
+          'start_time' => time.to_i,
+          'end_time' => time.to_i
+        )
+
+        panel.results << ccda_record.results.pop(numObs)
+
+        ccda_record.panels << panel
+      end
+
+      def self.cause_of_death(cause_of_death, ccda_record)
+        # byebug
       end
 
       def self.condition(condition, ccda_record)
@@ -94,31 +143,58 @@ module Synthea
           # "oid" => "2.16.840.1.113883.3.560.1.2"
         }
         ccda_condition['end_time'] = condition['end_time'] if condition['end_time']
-        ccda_record.conditions << Condition.new(ccda_condition)
+
+        condition = Condition.new(ccda_condition)
+
+        ccda_record.conditions << condition
       end
 
-      def self.encounter(encounter, ccda_record)
+      def self.encounter(entity, encounter, ccda_record)
         type = encounter['type']
         time = encounter['time']
-        reason_data = COND_LOOKUP[encounter['reason']] if encounter['reason']
-        # find the ccda condition based on the code
-        # encounter.reason is an entry
-        reason = ccda_record.conditions.find { |c| c.codes == reason_data[:codes] } if reason_data
-
         end_time = encounter['end_time'] || encounter['time'] + 15.minutes
+        reason = nil
 
-        if encounter['discharge']
-          discharge = { 'code' => encounter['discharge'].code,
-                        'code_system' => '2.16.840.1.113883.6.96' }
+        if encounter['reason'] then
+          reason = Condition.new({
+            'codes' => COND_LOOKUP[encounter['reason']][:codes],
+            'description' => COND_LOOKUP[encounter['reason']][:description],
+            'start_time' => time.to_i
+          })
         end
 
+        discharge_disposition = nil
+
+        if encounter['discharge']
+          discharge_disposition = {
+            'code' => encounter['discharge'].code,
+            'code_system' => '2.16.840.1.113883.6.96'
+          }
+        end
+
+        # HACK, add CPT codes so that healthshare displays inpatient/outpatient correctly
+
+        # SNOMED 170258001 => CPT 'AMB'
+        # SNOMED 50849002 => CPT 'EMER'
+        # SNOMED 183452005 => CPT 'IMP'
+
+        codes = ENCOUNTER_LOOKUP[type][:codes]
+        if codes['CPT'].nil? then
+          codes['CPT'] = ['AMB'] if codes['SNOMED-CT'].include? '170258001'
+          codes['CPT'] = ['EMER'] if codes['SNOMED-CT'].include?'50849002'
+          codes['CPT'] = ['IMP'] if codes['SNOMED-CT'].include? '183452005'
+        end
+
+        # HACK, limit to 10 for healthshare viewer
+        # if ccda_record.encounters.size < 10 then
+
         ccda_record.encounters << Encounter.new(
-          'codes' => ENCOUNTER_LOOKUP[type][:codes],
+          'codes' => codes,
           'description' => ENCOUNTER_LOOKUP[type][:description],
           'start_time' => time.to_i,
           'end_time' => end_time.to_i,
           'reason' => reason,
-          'discharge_disposition' => discharge
+          'discharge_disposition' => discharge_disposition
           # "oid" => "2.16.840.1.113883.3.560.1.79"
         )
       end
@@ -127,7 +203,7 @@ module Synthea
         type = immunization['type']
         time = immunization['time']
         ccda_record.immunizations << Immunization.new('codes' => { 'CVX' => [IMM_SCHEDULE[type][:code]['code']] },
-                                                      'description' => [IMM_SCHEDULE[type][:code]['display']],
+                                                      'description' => IMM_SCHEDULE[type][:code]['display'],
                                                       'time' => time.to_i)
       end
 
@@ -135,10 +211,20 @@ module Synthea
         type = procedure['type']
         time = procedure['time']
         duration = procedure['duration'] || 15.minutes
-        ccda_record.procedures << Procedure.new('codes' => PROCEDURE_LOOKUP[type][:codes],
-                                                'description' => PROCEDURE_LOOKUP[type][:description],
-                                                'start_time' => time.to_i,
-                                                'end_time' => time.to_i + duration)
+        reason = nil
+
+        if procedure['reason'] then
+          reason = COND_LOOKUP[procedure['reason']]
+        end
+
+        ccda_record.procedures << Procedure.new(
+          'codes' => PROCEDURE_LOOKUP[type][:codes],
+          'description' => PROCEDURE_LOOKUP[type][:description],
+          'start_time' => time.to_i,
+          'end_time' => time.to_i + duration,
+          'reason' => reason
+          )
+
       end
 
       def self.careplans(plan, ccda_record)

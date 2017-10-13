@@ -1,7 +1,7 @@
 GIT
-  remote: https://github.com/projectcypress/health-data-standards.git
-  revision: 311b640fea834fd77647ae38621eaabcf8d8c2c6
-  branch: ruby_24
+  remote: https://github.com/Cognosante/health-data-standards.git
+  revision: 0eaab4352d059a976ebdb591e859fd5b0ea910f0
+  branch: synthea_ccda
   specs:
     health-data-standards (3.6.1)
       activesupport (~> 4.2.0)
@@ -59,9 +59,10 @@ GEM
     awesome_print (1.7.0)
     bcp47 (0.3.3)
       i18n
-    bson (4.2.1)
-    bson (4.2.1-java)
+    bson (4.2.2)
+    bson (4.2.2-java)
     builder (3.2.3)
+    byebug (9.1.0)
     cane (2.3.0)
       parallel
     chunky_png (1.3.8)
@@ -79,6 +80,7 @@ GEM
     faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
+    ffi (1.9.18)
     ffi (1.9.18-java)
     ffi (1.9.18-x64-mingw32)
     fhir_client (3.0.2)
@@ -121,7 +123,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mongo (2.4.2)
+    mongo (2.4.3)
       bson (>= 4.2.1, < 5.0.0)
     mongoid (5.0.2)
       activemodel (~> 4.0)
@@ -221,6 +223,7 @@ PLATFORMS
 
 DEPENDENCIES
   awesome_print
+  byebug
   cane (~> 2.3.0)
   concurrent-ruby
   distribution (~> 0.7.3)

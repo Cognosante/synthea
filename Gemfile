@@ -7,7 +7,11 @@ gem 'tilt'
 gem 'faker'
 gem 'pickup'
 gem 'recursive-open-struct'
-gem 'health-data-standards', git: 'https://github.com/projectcypress/health-data-standards.git', branch: 'ruby_24'
+gem 'byebug'
+
+gem 'health-data-standards', git: 'https://github.com/Cognosante/health-data-standards.git', branch: 'synthea_ccda'
+#gem 'health-data-standards', path: '../health-data-standards/'
+
 gem 'georuby'
 gem 'net-sftp'
 gem 'concurrent-ruby', require: 'concurrent'
