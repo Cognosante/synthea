@@ -311,6 +311,13 @@ module Synthea
       end
 
       def build_person(options = {})
+        person = Synthea::Person.new
+
+        if SyntheaExt::PATIENTS.size > 0
+          person[:ext_id] = rand(0..SyntheaExt::PATIENTS.size)
+          # TODO use age from SyntheaExt when available
+        end
+
         target_age = options[:age] || rand(0..100)
         options.delete('age')
 
@@ -319,12 +326,12 @@ module Synthea
 
         date = rand(earliest_birthdate..latest_birthdate)
 
-        person = Synthea::Person.new
         options.each { |k, v| person[k] = v }
         while !person.had_event?(:death, date) && date <= @end_date
           date += @time_step.days
           Synthea::Rules.apply(date, person)
         end
+
         Synthea::Modules::Generic.log_modules(person)
 
         person

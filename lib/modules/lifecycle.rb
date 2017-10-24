@@ -16,6 +16,12 @@ module Synthea
       # People are born
       rule :birth, [], [:age] do |time, entity|
         unless entity.had_event?(:birth)
+
+          if ext_id = entity[:ext_id]
+            entity[:gender] = SyntheaExt::PATIENTS[ext_id]["properties"]["gender"]
+            entity[:race] = SyntheaExt::PATIENTS[ext_id]["properties"]["race"].to_sym
+          end
+
           entity[:age] = 0
           entity[:age_mos] = 0
           entity[:gender] ||= gender
@@ -58,19 +64,34 @@ module Synthea
           entity.events.create(time, :encounter, :birth)
           entity.events.create(time, :symptoms_cause_encounter, :birth)
 
-          # determine lat/long coordinates of address within MA
-          location_data = Synthea::Location.select_point(entity[:city])
-          entity[:coordinates_address] = location_data['point']
-          zip_code = Synthea::Location.get_zipcode(location_data['city'])
-          entity[:address] = {
-            'line' => [Faker::Address.street_address],
-            'city' => location_data['city'],
-            'state' => 'MA',
-            'postalCode' => zip_code,
-            'country' => 'US'
-          }
-          entity[:address]['line'] << Faker::Address.secondary_address if rand < 0.5
-          entity[:city] = location_data['city']
+          if ext_id
+            (x,y) = SyntheaExt::PATIENTS[ext_id]['coordinates']
+            entity[:coordinates_address] = GeoRuby::SimpleFeatures::Point.from_x_y(x, y)
+
+            ext_properties = SyntheaExt::PATIENTS[ext_id]['properties']
+            entity[:address] = {
+              'line' => [ext_properties['address']],
+              'city' => ext_properties['city'],
+              'state' => ext_properties['state'],
+              'postalCode' => ext_properties['city_zip'],
+              'country' => 'US'
+            }
+            entity[:city] = ext_properties['city']
+          else
+            # determine lat/long coordinates of address within MA
+            location_data = Synthea::Location.select_point(entity[:city])
+            entity[:coordinates_address] = location_data['point']
+            zip_code = Synthea::Location.get_zipcode(location_data['city'])
+            entity[:address] = {
+              'line' => [Faker::Address.street_address],
+              'city' => location_data['city'],
+              'state' => 'MA',
+              'postalCode' => zip_code,
+              'country' => 'US'
+            }
+            entity[:address]['line'] << Faker::Address.secondary_address if rand < 0.5
+            entity[:city] = location_data['city']
+          end
 
           # telephone
           entity[:telephone] = Faker::PhoneNumber.phone_number
@@ -250,6 +271,7 @@ module Synthea
           entity.set_vital_sign(:systolic_blood_pressure, pick(Synthea::Config.metabolic.blood_pressure.normal.systolic), 'mmHg')
           entity.set_vital_sign(:diastolic_blood_pressure, pick(Synthea::Config.metabolic.blood_pressure.normal.diastolic), 'mmHg')
         end
+
         # calculate the components of a lipid panel
         index = 0
         index = 1 if entity['diabetes_severity']
