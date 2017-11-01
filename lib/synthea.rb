@@ -29,6 +29,7 @@ module Synthea
 end
 
 Synthea::Config = RecursiveOpenStruct.new(YAML.load(ERB.new(File.read(File.join(root, 'config', 'synthea.yml'))).result)['synthea'])
+
 begin
   require 'health-data-standards'
 rescue LoadError
@@ -60,8 +61,16 @@ Dir.glob(File.join(root, 'lib', 'generic', '**', '*.rb')).each do |file|
 end
 
 require File.join(root, 'lib', 'modules', 'module.rb')
-Dir.glob(File.join(root, 'lib', 'modules', '*.rb')).each do |file|
-  require file
+
+unless Synthea::Config.ext&.default_modules == false
+  Dir.glob(File.join(root, 'lib', 'modules', '*.rb')).each do |file|
+    require file
+  end
+end
+
+Synthea::Config.ext&.synthea_modules.each do |file|
+  puts "Loaded synthea module from #{File.join(root, 'lib','modules', file)}"
+  require File.join(root, 'lib','modules', file)
 end
 
 Dir.glob(File.join(root, 'lib', 'records', '*.rb')).each do |file|

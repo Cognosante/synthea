@@ -2,10 +2,12 @@ module Synthea
   module Output
     module CcdaRecord
       def self.convert_to_ccda(entity, end_time = Time.now)
+
         synthea_record = entity.record_synthea
         indices = { observations: 0, conditions: 0, procedures: 0, immunizations: 0, careplans: 0, medications: 0 }
         ccda_record = ::Record.new
         basic_info(entity, ccda_record, end_time)
+
         synthea_record.encounters.each do |encounter|
           encounter(entity, encounter, ccda_record)
 
@@ -107,6 +109,7 @@ module Synthea
       end
 
       def self.multi_observation(multi_observation, ccda_record)
+        # TODO
         # return if multi_observation['type'] == :blood_pressure
         # byebug
       end
@@ -129,6 +132,7 @@ module Synthea
       end
 
       def self.cause_of_death(cause_of_death, ccda_record)
+        # TODO
         # byebug
       end
 

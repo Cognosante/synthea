@@ -1,0 +1,180 @@
+{
+  "name": "MIPS236",
+  "remarks": [
+    "NQF 0018",
+    "http://sticomputer.com/controlling-high-blood-pressure/"
+  ],
+  "states": {
+    "Initial" : {
+      "type" : "Initial",
+      "direct_transition" : "Wait_for_Scheduled"
+    },
+
+    "Wait_for_Scheduled": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Attribute",
+        "attribute": "perform_scheduled",
+        "operator": "==",
+        "value": true
+      },
+      "direct_transition": "Encounter"
+    },
+
+    "Encounter": {
+      "type": "Encounter",
+      "encounter_class": "ambulatory",
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "99201",
+          "display": "Outpatient Visit"
+        }
+      ],
+      "direct_transition": "Condition_Hypertension"
+    },
+
+    "Condition_Hypertension": {
+      "type": "ConditionOnset",
+      "codes": [
+        {
+        "system": "ICD-10-CM",
+        "code": "I10",
+        "display": "Essential (primary) hypertension ICD10"
+        }
+      ],
+      "direct_transition": "Distribute_Exclusion"
+    },
+
+    "Distribute_Exclusion" : {
+      "type": "Simple",
+
+      "distributed_transition": [
+        {
+          "distribution": 0.5,
+          "transition": "Distribute_BP"
+        },
+        {
+          "distribution": 0.5,
+          "transition": "Procedure_ESRD"
+        }
+      ]
+    },
+
+    "Procedure_ESRD" : {
+      "type": "Procedure",
+      "codes": [{
+        "system": "CPT",
+        "code": "90920",
+        "display": "End-stage renal disease (ESRD)"
+      }],
+      "direct_transition": "Distribute_BP"
+    },
+
+    "Distribute_BP" : {
+      "type": "Simple",
+
+      "distributed_transition": [
+        {
+          "distribution": 0.5,
+          "transition": "Record_Systolic_BP_Normal"
+        },
+        {
+          "distribution": 0.5,
+          "transition": "Record_Systolic_BP_High"
+        }
+      ]
+    },
+
+    "Record_Systolic_BP_Normal" : {
+      "type" : "Observation",
+      "category" : "vital-signs",
+      "range": {
+        "low": 90,
+        "high": 139
+      },
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "8480-6",
+        "display" : "Systolic Blood Pressure"
+      }],
+      "unit" : "mm[Hg]",
+      "direct_transition" : "Record_Diastolic_BP_Normal"
+    },
+
+    "Record_Diastolic_BP_Normal" : {
+      "type" : "Observation",
+      "category" : "vital-signs",
+      "range": {
+        "low": 60,
+        "high": 89
+      },
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "8462-4",
+        "display" : "Diastolic Blood Pressure"
+      }],
+      "unit" : "mm[Hg]",
+      "direct_transition" : "Finish_Observation"
+    },
+
+    "Record_Systolic_BP_High" : {
+      "type" : "Observation",
+      "category" : "vital-signs",
+      "range": {
+        "low": 140,
+        "high": 190
+      },
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "8480-6",
+        "display" : "Systolic Blood Pressure"
+      }],
+      "unit" : "mm[Hg]",
+      "direct_transition" : "Record_Diastolic_BP_High"
+    },
+
+    "Record_Diastolic_BP_High" : {
+      "type" : "Observation",
+      "category" : "vital-signs",
+      "range": {
+        "low": 90,
+        "high": 100
+      },
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "8462-4",
+        "display" : "Diastolic Blood Pressure"
+      }],
+      "unit" : "mm[Hg]",
+      "direct_transition" : "Finish_Observation"
+    },
+
+    "Finish_Observation" : {
+      "type" : "MultiObservation",
+      "category" : "vital-signs",
+      "number_of_observations" : 2,
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "55284-4",
+        "display" : "Blood Pressure"
+      }],
+      "direct_transition" : "End_Encounter"
+    },
+
+    "End_Encounter" : {
+      "type" : "EncounterEnd",
+      "discharge_disposition" : {
+        "system" : "NUBC",
+        "code" : "01",
+        "display" : "Discharged to home care or self care (routine discharge)"
+      },
+      "direct_transition" : "Terminal"
+    },
+
+    "Terminal": {
+      "type": "Terminal"
+    }
+
+  }
+}

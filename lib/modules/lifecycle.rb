@@ -9,6 +9,7 @@ module Synthea
         # we want synthea/resources/cdc_growth_charts.json
         gc_file = File.join(File.dirname(__FILE__), '..', '..', 'resources', 'cdc_growth_charts.json')
         @growth_chart = JSON.parse(File.read(gc_file))
+
         names_file = File.join(File.dirname(__FILE__), '..', '..', 'resources', 'names.yml')
         @names = YAML.load(File.read(names_file))
       end
@@ -35,6 +36,11 @@ module Synthea
           name_gender = entity[:gender] == 'F' ? 'female' : 'male'
           entity[:name_first] = @names[name_language][name_gender].sample
           entity[:name_last] = @names[name_language]['family'].sample
+
+          if name_prefix = Synthea::Config.ext&.name_prefix then
+            entity[:name_last] = "#{name_prefix}#{entity[:name_last]}"
+          end
+
           if Synthea::Config.population.append_hash_to_person_names == true
             entity[:name_first] = "#{entity[:name_first]}#{(entity[:name_first].hash % 999)}"
             entity[:name_last] = "#{entity[:name_last]}#{(entity[:name_last].hash % 999)}"
@@ -64,6 +70,8 @@ module Synthea
           entity.events.create(time, :encounter, :birth)
           entity.events.create(time, :symptoms_cause_encounter, :birth)
 
+          byebug
+          
           if ext_id
             (x,y) = SyntheaExt::PATIENTS[ext_id]['coordinates']
             entity[:coordinates_address] = GeoRuby::SimpleFeatures::Point.from_x_y(x, y)
@@ -76,7 +84,7 @@ module Synthea
               'postalCode' => ext_properties['city_zip'],
               'country' => 'US'
             }
-            entity[:city] = ext_properties['city']
+            entity[:city] = ext_properties['city']            
           else
             # determine lat/long coordinates of address within MA
             location_data = Synthea::Location.select_point(entity[:city])
@@ -167,7 +175,14 @@ module Synthea
                 # this doesn't account for marrying a someone with a different first language
                 name_language = entity[:first_language] == 'spanish' ? 'spanish' : 'english'
                 entity[:name_last] = @names[name_language]['family'].sample
-                entity[:name_last] = "#{entity[:name_last]}#{(entity[:name_last].hash % 999)}" if Synthea::Config.population.append_hash_to_person_names == true
+
+                if name_prefix = Synthea::Config.ext&.name_prefix then
+                  entity[:name_last] = "#{name_prefix}#{entity[:name_last]}"
+                end
+
+                if Synthea::Config.population.append_hash_to_person_names == true
+                  entity[:name_last] = "#{entity[:name_last]}#{(entity[:name_last].hash % 999)}"
+                end
               end
             else
               entity[:marital_status] = 'S'
@@ -376,13 +391,15 @@ module Synthea
 
       # People die from natural causes
       rule :death, [:age], [] do |time, entity|
-        if entity.alive?(time)
-          if rand <= likelihood_of_death(entity[:age])
-            entity.events.create(time, :death, :death, true)
-            self.class.record_death(entity, time, :natural_causes)
+        unless Synthea::Config.ext&.natural_deaths == false
+          if entity.alive?(time)
+            if rand <= likelihood_of_death(entity[:age])
+              entity.events.create(time, :death, :death, true)
+              self.class.record_death(entity, time, :natural_causes)
+            end
           end
         end
-      end
+    end
 
       def gender(ratios = { male: 0.5 })
         value = rand
@@ -503,7 +520,7 @@ module Synthea
 
         if entity[:income]
           # simple linear formula just maps federal poverty level to 0.0 and 75,000 to 1.0
-          # 75,000 chosen based on https://www.princeton.edu/~deaton/downloads/deaton_kahneman_high_income_improves_evaluation_August2010.pdf
+          # 75,000 chosen based on https://www.princeton.edu/~deaton/downloads/deaton_kshneman_high_income_improves_evaluation_August2010.pdf
 
           # (11000, 0) -> (75000, 1)
           # m = y2-y1/x2-x1 = 1/64000

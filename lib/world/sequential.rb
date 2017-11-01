@@ -313,12 +313,15 @@ module Synthea
       def build_person(options = {})
         person = Synthea::Person.new
 
-        if SyntheaExt::PATIENTS.size > 0
+        if Synthea::Config.ext&.patients_json
           person[:ext_id] = rand(0..SyntheaExt::PATIENTS.size)
-          # TODO use age from SyntheaExt when available
+          # TODO use age from SyntheaExt::PATIENTS when available
         end
 
-        target_age = options[:age] || rand(0..100)
+        min_age = Synthea::Config.ext&.min_age || 0
+        max_age = Synthea::Config.ext&.max_age || 100
+
+        target_age = options[:age] || rand(min_age..max_age)
         options.delete('age')
 
         earliest_birthdate = @end_date - (target_age + 1).years + 1.day

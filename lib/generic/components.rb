@@ -11,6 +11,22 @@ module Synthea
         end
       end
 
+      class Pick < Component
+        attr_accessor :values
+        required_field :values
+
+        def value
+          choice = rand
+          high = 0.0
+          values.each do |dt|
+            high += dt["distribution"]
+            return dt["value"] if choice < high
+          end
+
+          values.last["value"]
+        end
+      end
+
       class Range < Component
         attr_accessor :low, :high
         required_field and: [:low, :high]

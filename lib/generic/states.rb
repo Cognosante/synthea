@@ -647,7 +647,7 @@ module Synthea
       class Observation < State
         # target_encounter is deprecated and may be removed in a future release. Leaving it in for
         # now to maintain backwards compatibility with existing GMF modules.
-        attr_accessor :codes, :unit, :target_encounter, :attribute, :vital_sign, :range, :exact, :category
+        attr_accessor :codes, :unit, :target_encounter, :attribute, :vital_sign, :range, :exact, :pick, :category
 
         required_field :codes
         required_field :category
@@ -657,6 +657,7 @@ module Synthea
         metadata 'target_encounter', reference_to_state_type: 'Encounter', min: 1, max: 1
         metadata 'range', type: 'Components::Range', min: 0, max: 1
         metadata 'exact', type: 'Components::Exact', min: 0, max: 1
+        metadata 'pick', type: 'Components::Pick', min: 0, max: 1
         # continue to allow range and exact here, but prefer to use Vital Signs and Attributes where possible
         # some things, such as the MMSE score for Alzheimer's, don't feel like a good fit for 'Vital Sign'
         # since it's a quantitative evaluation and not a physical property of the patient
@@ -684,6 +685,8 @@ module Synthea
             @value = @range.value
           elsif @exact
             @value = @exact.value
+          elsif @pick
+            @value = @pick.value
           elsif @attribute
             @value = entity[@attribute] || entity[@attribute.to_sym]
           end
