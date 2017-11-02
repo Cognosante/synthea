@@ -68,7 +68,7 @@ unless Synthea::Config.ext&.default_modules == false
   end
 end
 
-Synthea::Config.ext&.synthea_modules.each do |file|
+Synthea::Config.ext&.synthea_modules&.each do |file|
   puts "Loaded synthea module from #{File.join(root, 'lib','modules', file)}"
   require File.join(root, 'lib','modules', file)
 end

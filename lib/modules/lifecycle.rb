@@ -69,8 +69,6 @@ module Synthea
           entity.events.create(time, :birth, :birth, true)
           entity.events.create(time, :encounter, :birth)
           entity.events.create(time, :symptoms_cause_encounter, :birth)
-
-          byebug
           
           if ext_id
             (x,y) = SyntheaExt::PATIENTS[ext_id]['coordinates']
