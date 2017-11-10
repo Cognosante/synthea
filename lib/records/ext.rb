@@ -1,10 +1,12 @@
 module SyntheaExt
-  PATIENTS = Synthea::Config.ext&.patients_json ? JSON.parse(File.read(Synthea::Config.ext&.patients_json)) : []
+  patients = Synthea::Config.ext&.patients_json ? JSON.parse(File.read(Synthea::Config.ext&.patients_json)) : []
 
   if Synthea::Config.ext&.genders
-    PATIENTS = PATIENTS.select { |e| Synthea::Config.ext&.genders.include? e['properties']['gender'] }
+    patients = patients.select { |e| Synthea::Config.ext&.genders.include? e['properties']['gender'] }
   end
   
+  PATIENTS = patients
+
   # one-pass weighted random sampling of hash (v=>p)
   #  
   # https://ruby-doc.org/core-2.4.2/Enumerable.html#method-i-max_by

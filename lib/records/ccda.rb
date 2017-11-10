@@ -183,10 +183,10 @@ module Synthea
         # SNOMED 183452005 => CPT 'IMP'
 
         codes = ENCOUNTER_LOOKUP[type][:codes]
-        if codes['CPT'].nil? then
-          codes['CPT'] = ['AMB'] if codes['SNOMED-CT'].include? '170258001'
-          codes['CPT'] = ['EMER'] if codes['SNOMED-CT'].include?'50849002'
-          codes['CPT'] = ['IMP'] if codes['SNOMED-CT'].include? '183452005'
+        if codes['CPT'].nil? && snomed_code = codes['SNOMED-CT'] then
+          codes['CPT'] = ['AMB'] if snomed_code.include? '170258001'
+          codes['CPT'] = ['EMER'] if snomed_code.include?'50849002'
+          codes['CPT'] = ['IMP'] if snomed_code.include? '183452005'
         end
 
         # HACK, limit to 10 for healthshare viewer
