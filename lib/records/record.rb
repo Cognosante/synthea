@@ -59,7 +59,7 @@ module Synthea
         @procedures << @present[type]
       end
 
-      def diagnostic_report(type, time, num_obs, fhir_method = :diagnostic_report, ccda_method = :no_action)
+      def diagnostic_report(type, time, num_obs, fhir_method = :diagnostic_report, ccda_method = :diagnostic_report)
         @observations << {
           'type' => type,
           'time' => time,
@@ -98,7 +98,8 @@ module Synthea
           'type' => type,
           'time' => time,
           'start_time' => time,
-          'reasons' => reasons # an array of reasons
+          'reasons' => reasons, # an array of reasons
+          'ccda' => :medications
         }
         med['rx_info'] = rx_info
         @medications << med

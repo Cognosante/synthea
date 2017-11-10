@@ -1,0 +1,168 @@
+{
+  "name": "MIPS1",
+  "remarks": [
+    "NQF 0059",
+    "http://sticomputer.com/diabetes-hemoglobin-a1c-poor-control/"
+  ],
+  "states": {
+    "Initial" : {
+      "type" : "Initial",
+      "direct_transition" : "Wait_for_Scheduled"
+    },
+
+    "Wait_for_Scheduled": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Attribute",
+        "attribute": "perform_scheduled",
+        "operator": "==",
+        "value": true
+      },
+      "direct_transition": "Encounter"
+    },
+
+    "Encounter": {
+      "type": "Encounter",
+      "encounter_class": "ambulatory",
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "99201",
+          "display": "Outpatient Visit"
+        }
+      ],
+      "direct_transition": "Condition"
+    },
+
+    "Condition": {
+      "type": "Simple",
+      "complex_transition": [
+        {
+          "condition": {
+            "condition_type": "Gender",
+            "gender": "F"
+          },
+          "distributions": [
+            {
+              "distribution": 0.2,
+              "transition": "Condition_Gestational_Diabetes_ICD10"
+            },
+            {
+              "distribution": 0.8,
+              "transition": "Distribute_Type2_Diabetes"
+            }
+          ]
+        },
+        {
+          "condition": {
+            "condition_type": "Gender",
+            "gender": "M"
+          },
+          "distributions": [
+            {
+              "distribution": 1.0,
+              "transition": "Distribute_Type2_Diabetes"
+            }
+          ]
+        }
+      ]
+    },
+
+    "Condition_Gestational_Diabetes_ICD10": {
+      "type": "ConditionOnset",
+      "codes": [
+        {
+          "system": "ICD-10-CM",
+          "code": "O24.410",
+          "display": "Gestational Diabetes ICD10"
+        }
+      ],
+      "direct_transition": "Distribute_Type2_Diabetes"
+    },
+
+    "Distribute_Type2_Diabetes": {
+      "type": "Simple",
+      "distributed_transition": [
+        {
+          "distribution": 0.5,
+          "transition": "Condition_Type2_Diabetes_ICD9"
+        },
+        {
+          "distribution": 0.5,
+          "transition": "Condition_Type2_Diabetes_ICD10"
+        }
+      ]
+    },
+
+    "Condition_Type2_Diabetes_ICD9": {
+      "type": "ConditionOnset",
+      "codes": [
+        {
+        "system": "ICD-9-CM",
+        "code": "250.00",
+        "display": "Diabetes Type 2 ICD9"
+        }
+      ],
+      "direct_transition": "Record_HA1C"
+    },
+
+    "Condition_Type2_Diabetes_ICD10": {
+      "type": "ConditionOnset",
+      "codes": [
+        {
+        "system": "ICD-10-CM",
+        "code": "E11.9",
+        "display": "Diabetes Type 2 ICD10"
+        }
+      ],
+      "direct_transition": "Record_HA1C"
+    },
+
+    "Record_HA1C" : {
+      "type" : "Observation",
+      "category" : "laboratory",
+      "remarks": [
+        "H1ac value distribution estimated from:",
+        "https://www.researchgate.net/figure/23489591_fig1_Histogram-showing-the-distribution-of-hemoglobin-A1c-levels-in-patients-with-and-without"
+      ],
+      "pick": {
+        "values": [
+          { "value":5, "distribution":0.0625 },
+          { "value":6, "distribution":0.125 },
+          { "value":7, "distribution":0.25 },
+          { "value":8, "distribution":0.125 },
+          { "value":9, "distribution":0.0625 },
+          { "value":10, "distribution":0.0625 },
+          { "value":11, "distribution":0.0625 },
+          { "value":12, "distribution":0.0625 },
+          { "value":13, "distribution":0.0625 },
+          { "value":14, "distribution":0.0625 },
+          { "value":15, "distribution":0.0625 }
+        ]
+      },
+      "unit" : "%",
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "4548-4",
+        "display" : "Hemoglobin A1c/Hemoglobin.total in Blood"
+      }],
+      "direct_transition" : "End_Encounter"
+    },
+
+
+    "End_Encounter" : {
+      "type" : "EncounterEnd",
+      "discharge_disposition" : {
+        "system" : "NUBC",
+        "code" : "01",
+        "display" : "Discharged to home care or self care (routine discharge)"
+      },
+      "direct_transition" : "Terminal"
+    },
+
+    "Terminal": {
+      "type": "Terminal"
+    }
+
+  }
+}

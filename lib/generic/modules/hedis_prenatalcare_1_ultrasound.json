@@ -1,0 +1,75 @@
+{
+  "name": "HEDIS_PRENATALCARE_1_ULTRASOUND",
+  "remarks": [
+  ],
+  "states": {
+    "Initial" : {
+      "type" : "Initial",
+      "direct_transition" : "Wait_for_Scheduled"
+    },
+
+    "Wait_for_Scheduled": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Attribute",
+        "attribute": "perform_ultrasound",
+        "operator": "==",
+        "value": true
+      },
+      "direct_transition": "Encounter"
+    },
+
+    "Encounter": {
+      "type": "Encounter",
+      "encounter_class": "ambulatory",
+      "codes": [
+        {
+          "system": "ICD-10-CM",
+          "code": "Z34.00",
+          "display": "Encounter for supervision of normal first pregnancy"
+        }
+      ],
+      "direct_transition": "Procedure"
+    },
+
+    "Procedure": {
+      "type": "Procedure",
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "76801",
+          "display": "OB Ultrasound"
+        }
+      ],
+      "direct_transition": "Record_Gestational_Age"
+    },  
+
+    "Record_Gestational_Age" : {
+      "type" : "Observation",
+      "category" : "procedure",
+      "codes" : [{
+        "system" : "LOINC",
+        "code" : "49051-6",
+        "display" : "Gestational Age (wks)"
+      }],
+      "attribute" : "gestational_age",
+      "unit" : "Weeks",
+      "direct_transition" : "End_Encounter"
+    },
+
+    "End_Encounter" : {
+      "type" : "EncounterEnd",
+      "discharge_disposition" : {
+        "system" : "NUBC",
+        "code" : "01",
+        "display" : "Discharged to home care or self care (routine discharge)"
+      },
+      "direct_transition" : "Terminal"
+    },
+
+    "Terminal": {
+      "type": "Terminal"
+    }
+
+  }
+}

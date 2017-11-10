@@ -9,6 +9,7 @@ module Synthea
         # we want synthea/resources/cdc_growth_charts.json
         gc_file = File.join(File.dirname(__FILE__), '..', '..', 'resources', 'cdc_growth_charts.json')
         @growth_chart = JSON.parse(File.read(gc_file))
+
         names_file = File.join(File.dirname(__FILE__), '..', '..', 'resources', 'names.yml')
         @names = YAML.load(File.read(names_file))
       end
@@ -16,6 +17,12 @@ module Synthea
       # People are born
       rule :birth, [], [:age] do |time, entity|
         unless entity.had_event?(:birth)
+
+          if ext_id = entity[:ext_id]
+            entity[:gender] = SyntheaExt::PATIENTS[ext_id]["properties"]["gender"]
+            entity[:race] = SyntheaExt::PATIENTS[ext_id]["properties"]["race"].to_sym
+          end
+
           entity[:age] = 0
           entity[:age_mos] = 0
           entity[:gender] ||= gender
@@ -29,6 +36,11 @@ module Synthea
           name_gender = entity[:gender] == 'F' ? 'female' : 'male'
           entity[:name_first] = @names[name_language][name_gender].sample
           entity[:name_last] = @names[name_language]['family'].sample
+
+          if name_prefix = Synthea::Config.ext&.name_prefix then
+            entity[:name_last] = "#{name_prefix}#{entity[:name_last]}"
+          end
+
           if Synthea::Config.population.append_hash_to_person_names == true
             entity[:name_first] = "#{entity[:name_first]}#{(entity[:name_first].hash % 999)}"
             entity[:name_last] = "#{entity[:name_last]}#{(entity[:name_last].hash % 999)}"
@@ -57,20 +69,35 @@ module Synthea
           entity.events.create(time, :birth, :birth, true)
           entity.events.create(time, :encounter, :birth)
           entity.events.create(time, :symptoms_cause_encounter, :birth)
+          
+          if ext_id
+            (x,y) = SyntheaExt::PATIENTS[ext_id]['coordinates']
+            entity[:coordinates_address] = GeoRuby::SimpleFeatures::Point.from_x_y(x, y)
 
-          # determine lat/long coordinates of address within MA
-          location_data = Synthea::Location.select_point(entity[:city])
-          entity[:coordinates_address] = location_data['point']
-          zip_code = Synthea::Location.get_zipcode(location_data['city'])
-          entity[:address] = {
-            'line' => [Faker::Address.street_address],
-            'city' => location_data['city'],
-            'state' => 'MA',
-            'postalCode' => zip_code,
-            'country' => 'US'
-          }
-          entity[:address]['line'] << Faker::Address.secondary_address if rand < 0.5
-          entity[:city] = location_data['city']
+            ext_properties = SyntheaExt::PATIENTS[ext_id]['properties']
+            entity[:address] = {
+              'line' => [ext_properties['address']],
+              'city' => ext_properties['city'],
+              'state' => ext_properties['state'],
+              'postalCode' => ext_properties['city_zip'],
+              'country' => 'US'
+            }
+            entity[:city] = ext_properties['city']            
+          else
+            # determine lat/long coordinates of address within MA
+            location_data = Synthea::Location.select_point(entity[:city])
+            entity[:coordinates_address] = location_data['point']
+            zip_code = Synthea::Location.get_zipcode(location_data['city'])
+            entity[:address] = {
+              'line' => [Faker::Address.street_address],
+              'city' => location_data['city'],
+              'state' => 'MA',
+              'postalCode' => zip_code,
+              'country' => 'US'
+            }
+            entity[:address]['line'] << Faker::Address.secondary_address if rand < 0.5
+            entity[:city] = location_data['city']
+          end
 
           # telephone
           entity[:telephone] = Faker::PhoneNumber.phone_number
@@ -146,7 +173,14 @@ module Synthea
                 # this doesn't account for marrying a someone with a different first language
                 name_language = entity[:first_language] == 'spanish' ? 'spanish' : 'english'
                 entity[:name_last] = @names[name_language]['family'].sample
-                entity[:name_last] = "#{entity[:name_last]}#{(entity[:name_last].hash % 999)}" if Synthea::Config.population.append_hash_to_person_names == true
+
+                if name_prefix = Synthea::Config.ext&.name_prefix then
+                  entity[:name_last] = "#{name_prefix}#{entity[:name_last]}"
+                end
+
+                if Synthea::Config.population.append_hash_to_person_names == true
+                  entity[:name_last] = "#{entity[:name_last]}#{(entity[:name_last].hash % 999)}"
+                end
               end
             else
               entity[:marital_status] = 'S'
@@ -250,6 +284,7 @@ module Synthea
           entity.set_vital_sign(:systolic_blood_pressure, pick(Synthea::Config.metabolic.blood_pressure.normal.systolic), 'mmHg')
           entity.set_vital_sign(:diastolic_blood_pressure, pick(Synthea::Config.metabolic.blood_pressure.normal.diastolic), 'mmHg')
         end
+
         # calculate the components of a lipid panel
         index = 0
         index = 1 if entity['diabetes_severity']
@@ -354,13 +389,15 @@ module Synthea
 
       # People die from natural causes
       rule :death, [:age], [] do |time, entity|
-        if entity.alive?(time)
-          if rand <= likelihood_of_death(entity[:age])
-            entity.events.create(time, :death, :death, true)
-            self.class.record_death(entity, time, :natural_causes)
+        unless Synthea::Config.ext&.natural_deaths == false
+          if entity.alive?(time)
+            if rand <= likelihood_of_death(entity[:age])
+              entity.events.create(time, :death, :death, true)
+              self.class.record_death(entity, time, :natural_causes)
+            end
           end
         end
-      end
+    end
 
       def gender(ratios = { male: 0.5 })
         value = rand
@@ -481,7 +518,7 @@ module Synthea
 
         if entity[:income]
           # simple linear formula just maps federal poverty level to 0.0 and 75,000 to 1.0
-          # 75,000 chosen based on https://www.princeton.edu/~deaton/downloads/deaton_kahneman_high_income_improves_evaluation_August2010.pdf
+          # 75,000 chosen based on https://www.princeton.edu/~deaton/downloads/deaton_kshneman_high_income_improves_evaluation_August2010.pdf
 
           # (11000, 0) -> (75000, 1)
           # m = y2-y1/x2-x1 = 1/64000
@@ -531,7 +568,7 @@ module Synthea
           entity[:cause_of_death] = reason
           # TODO: once CCDA supports cause of death, change the ccda_method parameter
           entity.record_synthea.encounter(:death_certification, time)
-          entity.record_synthea.observation(:cause_of_death, time, reason, 'fhir' => :observation, 'ccda' => :no_action)
+          entity.record_synthea.observation(:cause_of_death, time, reason, 'fhir' => :observation, 'ccda' => :cause_of_death)
           entity.record_synthea.diagnostic_report(:death_certificate, time, 1) # note: ccda already no action here
         end
       end

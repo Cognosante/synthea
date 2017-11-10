@@ -523,6 +523,7 @@ module Synthea
         }
         time = event.time
         diagnosis = event.type
+
         patient = entity.record_synthea
         if [:myocardial_infarction, :stroke, :cardiac_arrest].include?(diagnosis)
           patient.condition(diagnosis, time, :condition, :condition)

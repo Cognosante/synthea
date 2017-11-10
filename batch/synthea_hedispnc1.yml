@@ -37,7 +37,7 @@ synthea:
   sequential: # sequential population generation... one at a time...
     # population is scaled to accurately represent MA (using a "true" population of 6,794,422)
     only_dead_patients: false
-    population: 1
+    population: 10000
     real_world_population: 6794422 #sum of the jsons in the config folder
     track_detailed_prevalence: true
     multithreading: false
@@ -153,3 +153,17 @@ synthea:
     # If dockerized, write Synthea's output to this location, which should match
     # a volume mounted to a persistent data volume container.
     location: '/mnt/synthea'
+  ext:
+    # name_prefix: 'HEDISPNC1-'
+    name_prefix: 'TEST-'
+    patients_json: './ext/patients.json'
+    min_age: 18     
+    max_age: 45
+    genders: ['F']
+    # in this set, encounter_time = conception_time
+    min_encounter_time: <%= 59.months.ago %>
+    max_encounter_time: <%= 10.months.ago %>
+    natural_deaths: false
+    default_modules: false
+    synthea_modules: ['generic.rb', 'lifecycle.rb', 'hedis_prenatalcare_1.rb']
+    generic_modules: ['hedis_prenatalcare_1_visit.json', 'hedis_prenatalcare_1_birth.json', 'hedis_prenatalcare_1_ultrasound.json']

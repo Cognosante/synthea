@@ -8,9 +8,15 @@ module Synthea
         # any main module.
         module_dir = File.expand_path('../../generic/modules', __FILE__)
 
-        # load all modules and submodules in lib/generic/modules/
-        Dir.glob(File.join(module_dir, '**', '*.json')).each do |file|
-          load_module(module_dir, file)
+        unless Synthea::Config.ext&.default_modules == false
+          # load all modules and submodules in lib/generic/modules/
+          Dir.glob(File.join(module_dir, '**', '*.json')).each do |file|
+            load_module(module_dir, file)
+          end
+        end
+
+        Synthea::Config.ext&.generic_modules.each do |file|
+          load_module(module_dir, File.join(module_dir,file))
         end
       end
 
