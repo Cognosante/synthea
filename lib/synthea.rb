@@ -28,7 +28,8 @@ root = File.expand_path '..', File.dirname(File.absolute_path(__FILE__))
 module Synthea
 end
 
-Synthea::Config = RecursiveOpenStruct.new(YAML.load(ERB.new(File.read(File.join(root, 'config', 'synthea.yml'))).result)['synthea'])
+config_file = ENV['CONFIG'] || File.join(root, 'config', 'synthea.yml')
+Synthea::Config = RecursiveOpenStruct.new(YAML.load(ERB.new(File.read(config_file)).result)['synthea'])
 
 begin
   require 'health-data-standards'

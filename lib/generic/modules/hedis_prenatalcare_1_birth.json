@@ -1,0 +1,62 @@
+{
+  "name": "HEDIS_PRENATALCARE_1_BIRTH",
+  "remarks": [
+  ],
+  "states": {
+    "Initial" : {
+      "type" : "Initial",
+      "direct_transition" : "Wait_for_Scheduled"
+    },
+
+    "Wait_for_Scheduled": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Attribute",
+        "attribute": "perform_birth",
+        "operator": "==",
+        "value": true
+      },
+      "direct_transition": "Encounter"
+    },
+
+    "Encounter": {
+      "type": "Encounter",
+      "encounter_class": "emergency",
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "EMER",
+          "display": "Obstetric emergency hospital admission"
+        }
+      ],
+      "direct_transition": "Procedure"
+    },
+
+    "Procedure": {
+      "type": "Procedure",
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "59400",
+          "display": "Vaginal delivery"
+        }
+      ],
+      "direct_transition": "End_Encounter"
+    },  
+
+    "End_Encounter" : {
+      "type" : "EncounterEnd",
+      "discharge_disposition" : {
+        "system" : "NUBC",
+        "code" : "01",
+        "display" : "Discharged to home care or self care (routine discharge)"
+      },
+      "direct_transition" : "Terminal"
+    },
+
+    "Terminal": {
+      "type": "Terminal"
+    }
+
+  }
+}
