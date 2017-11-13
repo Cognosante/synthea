@@ -41,7 +41,7 @@ module Synthea
         required_field :unit
 
         def value
-          ActiveSupport::Duration.new(rand(low.send(unit)..high.send(unit)).round, [[:days, rand(low.send(unit)..high.send(unit)).round]])
+          rand(low.send(unit)..high.send(unit))
         end
       end
 
