@@ -1,0 +1,136 @@
+{
+    "name": "HEDIS: Breast Cancer Screening",
+    "remarks": [
+      "Procedures on a population for a HEDIS measure.",
+      "https://www.qualitymeasures.ahrq.gov/summaries/summary/48809",
+      "Women who get screened",
+      "https://www.cdc.gov/nchs/data/hus/hus16.pdf#070",
+      "67.8% age 50+ (crude)",
+      "Women who are diagnosed with breast cancer:",
+      "https://nccd.cdc.gov/USCS/cancersbystateandregion.aspx?Year=2014&Variable1=Massachusetts",
+      "5,860 (all races, crude) of 3,479,720 population for 2014 = 0.16%",
+      "distribution: 0.678"
+    ],
+    "states": {
+        "Initial": {
+            "type": "Initial",
+            "conditional_transition": [
+            {
+                "condition": {
+                "condition_type": "Gender",
+                "gender": "F"
+                },
+                "transition": "Age_Guard"
+            }
+            ]
+        },
+
+        "Age_Guard": {
+          "type": "Guard",
+          "allow": {
+            "condition_type": "Age",
+            "operator": ">",
+            "quantity": 49,
+            "unit": "years"
+          },
+          "direct_transition": "Breast_Cancer_Screen_Delay"
+        },
+
+        "Breast_Cancer_Screen_Delay": {
+          "type": "Delay",
+          "range": {
+            "low": 0,
+            "high": 10,
+            "unit": "years"
+          },
+          "distributed_transition": [
+            {
+              "distribution": 0.678,
+              "transition": "Mammogram_Encounter"
+            }
+          ]
+        },
+
+        "Mammogram_Encounter": {
+          "type": "Encounter",
+          "encounter_class": "ambulatory",
+          "codes": [
+            {
+              "system": "ICD-10",
+              "code": "Z12.31",
+              "display": "Encounter for screening mammogram for malignant neoplasm of breast"
+            }
+          ],
+          "distributed_transition": [
+            {
+              "distribution": 0.60,
+              "transition": "Mammogram_Bilateral"
+            },
+            {
+              "distribution": 0.10,
+              "transition": "Mammogram_Diagnostic_Unilateral"
+            },
+            {
+              "distribution": 0.30,
+              "transition": "Mammogram_Diagnostic_Bilateral"
+            }
+          ]
+        },
+
+        "Mammogram_Bilateral": {
+          "type": "Procedure",
+          "duration": {
+            "low": 10,
+            "high": 15,
+            "unit": "minutes"
+          },
+          "codes": [
+            {
+              "system": "CPT",
+              "code": "77057",
+              "display": "Screening mammography, bilateral (2-view film study of each breast)"
+            }
+          ],
+          "direct_transition": "End_Mammogram_Encounter"
+        },
+
+        "Mammogram_Diagnostic_Unilateral": {
+          "type": "Procedure",
+          "duration": {
+            "low": 10,
+            "high": 15,
+            "unit": "minutes"
+          },
+          "codes": [
+            {
+              "system": "CPT",
+              "code": "77055",
+              "display": "Diagnostic mammography, unilateral"
+            }
+          ],
+          "direct_transition": "End_Mammogram_Encounter"
+        },
+
+        "Mammogram_Diagnostic_Bilateral": {
+          "type": "Procedure",
+          "duration": {
+            "low": 10,
+            "high": 15,
+            "unit": "minutes"
+          },
+          "codes": [
+            {
+              "system": "CPT",
+              "code": "77056",
+              "display": "Diagnostic mammography, bilateral"
+            }
+          ],
+          "direct_transition": "End_Mammogram_Encounter"
+        },
+
+        "End_Mammogram_Encounter": {
+          "type": "EncounterEnd"
+        }
+
+    }
+}
