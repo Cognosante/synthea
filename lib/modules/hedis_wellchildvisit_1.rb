@@ -8,23 +8,21 @@ module Synthea
       }
 
       VARIANCE = {
-        1.0 => 0.20,
+        1.0 => 0.70,
         1.25 => 0.20,
-        1.5 => 0.20,
-        1.75 => 0.20,
-        2.0 => 0.20
+        1.5 => 0.10
       }
 
       rule :encounter, [], [:schedule_encounter, :observations, :lab_results, :diagnoses, :immunizations] do |time, entity|
-        if entity.alive?(time)
-      
+        if entity.alive?(time)    
           unprocessed_events = entity.events.unprocessed_before(time, :encounter)          
           unprocessed_events.each do |event|
             entity.events.process(event)
 
-            self.class.encounter(entity, event.time)
-
-            Synthea::Modules::Generic.perform_wellness_encounter(entity, event.time)            
+            unless event.rule == :birth              
+              self.class.encounter(entity, event.time)
+              Synthea::Modules::Generic.perform_wellness_encounter(entity, event.time)            
+            end
 
             entity.events.create(event.time, :encounter_ordered, :encounter)
           end
@@ -36,7 +34,7 @@ module Synthea
           unprocessed_events = entity.events.unprocessed_before(time, :encounter_ordered)
           unprocessed_events.each do |event|
             entity.events.process(event)
-      
+                              
             age_in_years = entity[:age]
 
             if age_in_years >= 3
@@ -65,11 +63,11 @@ module Synthea
                         6.months
                       end
             end
-
+            
             variance = SyntheaExt::WRS[VARIANCE]
             next_date = time + delta * variance
 
-            if SyntheaExt::WRS[SKIP]
+            if skip = SyntheaExt::WRS[SKIP]
               entity.events.create(next_date, :encounter_ordered, :schedule_encounter)
             else
               entity.events.create(next_date, :encounter, :schedule_encounter)
