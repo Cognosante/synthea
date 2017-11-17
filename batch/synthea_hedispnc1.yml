@@ -154,8 +154,7 @@ synthea:
     # a volume mounted to a persistent data volume container.
     location: '/mnt/synthea'
   ext:
-    # name_prefix: 'HEDISPNC1-'
-    name_prefix: 'TEST-'
+    name_prefix: 'HEDISPNC1-'
     patients_json: './ext/patients.json'
     min_age: 18     
     max_age: 45

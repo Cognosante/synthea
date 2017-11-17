@@ -37,7 +37,7 @@ synthea:
   sequential: # sequential population generation... one at a time...
     # population is scaled to accurately represent MA (using a "true" population of 6,794,422)
     only_dead_patients: false
-    population: 10
+    population: 10000
     real_world_population: 6794422 #sum of the jsons in the config folder
     track_detailed_prevalence: true
     multithreading: false
@@ -154,7 +154,7 @@ synthea:
     # a volume mounted to a persistent data volume container.
     location: '/mnt/synthea'
   ext:
-    name_prefix: 'HEDIS-'
+    name_prefix: 'HEDISBCS1-'
     patients_json: './ext/patients.json'
     min_age: 49
     max_age: 75
@@ -163,5 +163,5 @@ synthea:
     max_encounter_time: <%= 1.months.ago %>
     natural_deaths: false
     default_modules: false
-    synthea_modules: ['generic.rb', 'lifecycle.rb', 'schedule_encounter.rb']
-    generic_modules: ['breast_cancer_screening.json']
+    synthea_modules: ['generic.rb', 'lifecycle.rb']
+    generic_modules: ['hedis_breastcancerscreening_1.json']

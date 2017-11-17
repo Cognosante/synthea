@@ -1,5 +1,5 @@
 {
-    "name": "HEDIS: Breast Cancer Screening",
+    "name": "HEDIS_BREASTCANCERSCREENING_1",
     "remarks": [
       "Procedures on a population for a HEDIS measure.",
       "https://www.qualitymeasures.ahrq.gov/summaries/summary/48809",
@@ -35,7 +35,7 @@
           },
           "direct_transition": "Breast_Cancer_Screen_Delay"
         },
-
+    
         "Breast_Cancer_Screen_Delay": {
           "type": "Delay",
           "range": {
@@ -45,8 +45,16 @@
           },
           "distributed_transition": [
             {
-              "distribution": 0.678,
+              "distribution": 0.60,
               "transition": "Mammogram_Encounter"
+            },
+            {
+              "distribution": 0.10,
+              "transition": "Mastectomy_Encounter"
+            },
+            {
+              "distribution": 0.30,
+              "transition": "Terminal"
             }
           ]
         },
@@ -129,7 +137,42 @@
         },
 
         "End_Mammogram_Encounter": {
-          "type": "EncounterEnd"
+          "type": "EncounterEnd",
+          "direct_transition" : "Terminal"
+        },
+
+        "Mastectomy_Encounter": {
+          "type": "Encounter",          
+          "encounter_class": "inpatient",
+          "codes": [
+            {
+              "system": "ICD-10",
+              "code": "Z40.01",
+              "display": "Encounter for prophylactic removal of breast"
+            }
+          ],
+          "direct_transition" : "Mastectomy_Procedure"
+        },
+
+        "Mastectomy_Procedure": {
+          "type": "Procedure",
+          "codes": [
+            {
+              "system": "CPT",
+              "code": "19303",
+              "display": "Simple total mastectomy"
+            }
+          ],
+          "direct_transition" : "End_Mastectomy_Encounter"
+        },
+
+        "End_Mastectomy_Encounter": {
+          "type": "EncounterEnd",
+          "direct_transition" : "Terminal"
+        },
+    
+        "Terminal": {
+          "type": "Terminal"
         }
 
     }
