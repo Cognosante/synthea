@@ -156,6 +156,7 @@ synthea:
   ext:
     name_prefix: 'HEDISBCS1-'
     patients_json: './ext/patients.json'
+    providers_json: './ext/providers.json'
     min_age: 49
     max_age: 75
     genders: F

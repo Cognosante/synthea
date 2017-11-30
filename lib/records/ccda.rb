@@ -154,6 +154,7 @@ module Synthea
       end
 
       def self.encounter(entity, encounter, ccda_record)
+
         type = encounter['type']
         time = encounter['time']
         end_time = encounter['end_time'] || encounter['time'] + 15.minutes
@@ -192,15 +193,39 @@ module Synthea
         # HACK, limit to 10 for healthshare viewer
         # if ccda_record.encounters.size < 10 then
 
-        ccda_record.encounters << Encounter.new(
+        e = encounter[:provider].attributes
+        
+        performer = ::Provider.new(
+          'given_name' => e['name'].split.first,
+          'family_name' => e['name'].split.last,
+          'npi' => e['npi'],
+          'specialty' => e['specialty'],
+          'taxonomy_code' => e['taxonomy_code']
+        )
+
+        facility = ::Facility.new(
+          'name' => e['name'],
+          'addresses' => [::Address.new(
+            'street' => [e["address"]],
+            'city' => e["city"],
+            'state' => e["state"],
+            'zip' => e["city_zip"]
+          )]
+        )
+        
+        encounter = Encounter.new(
           'codes' => codes,
           'description' => ENCOUNTER_LOOKUP[type][:description],
           'start_time' => time.to_i,
           'end_time' => end_time.to_i,
           'reason' => reason,
-          'discharge_disposition' => discharge_disposition
+          'discharge_disposition' => discharge_disposition,
+          'performer' => performer,
+          'facility' => facility
           # "oid" => "2.16.840.1.113883.3.560.1.79"
         )
+
+        ccda_record.encounters << encounter        
       end
 
       def self.immunization(immunization, ccda_record)

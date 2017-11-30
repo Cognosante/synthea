@@ -7,6 +7,10 @@ module SyntheaExt
   
   PATIENTS = patients
 
+  providers = Synthea::Config.ext&.providers_json ? JSON.parse(File.read(Synthea::Config.ext&.providers_json)) : {}
+
+  PROVIDERS = providers.select { |k,v| v['properties']['hie'] }
+  
   # one-pass weighted random sampling of hash (v=>p)
   #  
   # https://ruby-doc.org/core-2.4.2/Enumerable.html#method-i-max_by
