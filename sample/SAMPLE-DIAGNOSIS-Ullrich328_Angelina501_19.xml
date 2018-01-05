@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:sdtc="urn:hl7-org:sdtc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/cdar2c32/infrastructure/cda/C32_CDA.xsd">
+  <realmCode code="US"/>
+  <typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+  <templateId root="2.16.840.1.113883.10.20.22.1.2" extension="2015-08-01"/>
+  <id root="2.16.840.1.113883.19.5" extension="5a4fb9b68612921262794cf5" assigningAuthorityName="Cypress Project"/>
+  <code code="34133-9" displayName="Summarization of episode note" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+  <title>Cypress C-CDA R2.1 Patient Test Record: Angelina501 SAMPLE-DIAGNOSIS-Ullrich328</title>
+  <effectiveTime value="20180105174526"/>
+  <confidentialityCode code="N"/>
+  <languageCode code="en-US"/>
+  <recordTarget>
+    <patientRole>
+      <id root="Cypress" extension="5a4fb9b68612921262794cf5"/>
+      <addr use="HP">
+        <streetAddressLine>74 Old Stage Rd</streetAddressLine>
+        <city>Hatfield Town of</city>
+        <state>MA</state>
+        <postalCode>01088</postalCode>
+      </addr>
+      <telecom value="tel:131-469-4364 x76993"/>
+      <patient>
+        <name>
+          <given>Angelina501</given>
+          <family>SAMPLE-DIAGNOSIS-Ullrich328</family>
+        </name>
+        <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.5.1" codeSystemName="HL7 AdministrativeGender"/>
+        <birthTime value="19990102163941"/>
+          <raceCode code="2106-3" displayName="White" codeSystemName="CDC Race and Ethnicity" codeSystem="2.16.840.1.113883.6.238"/>
+
+          <ethnicGroupCode code="2186-5" displayName="Not Hispanic or Latino" codeSystemName="CDC Race and Ethnicity" codeSystem="2.16.840.1.113883.6.238"/>
+          <languageCommunication>
+            <languageCode code="en-US"/>
+          </languageCommunication>
+      </patient>
+    </patientRole>
+  </recordTarget>
+  <author>
+    <time value="20180105174526"/>
+    <assignedAuthor>
+      <id nullFlavor="NA"/>
+      <addr>
+        <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+        <city>Bedford</city>
+        <state>MA</state>
+        <postalCode>01730</postalCode>
+      </addr>
+      <telecom value="tel:+1-781-271-3000"/>
+      <assignedPerson>
+        <name>Auto Generated</name>
+      </assignedPerson>
+    </assignedAuthor>
+  </author>
+  <custodian>
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <id nullFlavor="NA"/>
+        <name>Cypress</name>
+        <telecom value="tel:+1-781-271-3000"/>
+        <addr>
+          <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+          <city>Bedford</city>
+          <state>MA</state>
+          <postalCode>01730</postalCode>
+        </addr>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+  <documentationOf>
+    <serviceEvent classCode="PCPR">
+      <effectiveTime>
+        <low value="19990102163941"/>
+        <high value="20180105174526"/>
+      </effectiveTime>
+    </serviceEvent>
+  </documentationOf>
+  <component>
+    <structuredBody>
+        <component>
+  <!-- Allergies: patient has no allergies -->
+  <section nullFlavor="NI">
+    <templateId root="2.16.840.1.113883.10.20.22.2.6.1" extension="2015-08-01"/>
+    <code code="48765-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Allergy List"/>
+    <title>Allergies</title>                
+    <text>There are no current allergies at the time of this document's creation.</text>
+  </section>
+</component>
+        <component>
+  <!-- Medications: patient has no medications -->
+  <section nullFlavor="NI">
+		<templateId root="2.16.840.1.113883.10.20.22.2.1.1" extension="2014-06-09"/>
+    <code code="10160-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="History of medication use"/>
+    <title>Medications</title>
+    <text>There are no current medications at the time of this document's creation.</text>
+  </section>
+</component>
+        <component>
+  <!-- Diagnostic Results: patient has no results -->
+  <section nullFlavor="NI">
+    <templateId root="2.16.840.1.113883.10.20.22.2.3.1" extension="2015-08-01"/>
+    <code code="30954-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Results"/>
+    <title>Diagnostic Results</title>
+    <text>There are no current results at the time of this document's creation.</text>
+  </section>
+</component>
+        <component>
+  <!--Problems-->
+  <section>
+    <templateId root="2.16.840.1.113883.10.20.22.2.5.1" extension="2015-08-01"/>
+    <!--Problems section template-->
+    <code code="11450-4" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Problem list"/>
+    <title>Problems</title>
+    <text>
+  <table border="1" width="100%">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Codes</th>
+        <th>Time</th>
+          <th>Status</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td ID="conditions-desc-0">Appendicitis</td>
+          <td ID="conditions-code-0">SNOMED-CT: 74400008<br/></td>
+          <td>November 19th, 2016 16:39 - UNK</td>
+            <td></td>
+           
+        </tr>
+    </tbody>
+  </table>
+</text>
+    <entry typeCode="DRIV">
+      <act classCode="ACT" moodCode="EVN">
+        <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01"/>
+        <!-- Problem act template -->
+        <id root="fe9aa2f0-d5b7-4a34-a8bf-60d42a0ef810"/>
+        <code nullFlavor="NA"/>
+        <statusCode code="active"/>
+        <effectiveTime>
+          <low value='20161119163941'/>
+        </effectiveTime>
+        <entryRelationship typeCode="SUBJ" inversionInd="false">
+          <observation classCode="OBS" moodCode="EVN">
+            <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01"/>
+
+            <!--Problem observation template - NOT episode template-->
+            <id root="57cc39f3-6657-4fce-8655-8ca6ea25723a"/>
+            <code code="64572001" displayName="Condition" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED-CT">
+              <translation code="75323-6" displayName="Condition" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+            </code>
+            <text>
+              <reference value="#conditions-desc-0"/>
+            </text>
+            <statusCode code="completed"/>
+
+            <effectiveTime xsi:type="IVL_TS">
+              <low value='20161119163941'/>
+              <high nullFlavor='UNK'/>
+            </effectiveTime>
+
+            <value code="74400008" codeSystem="2.16.840.1.113883.6.96" xsi:type="CD"><originalText>Appendicitis</originalText></value>
+          </observation>
+        </entryRelationship>
+      </act>
+    </entry>
+  </section>
+</component>
+
+        <component>
+  <!-- Procedures: patient has no procedures -->
+  <section nullFlavor="NI">
+    <templateId root="2.16.840.1.113883.10.20.22.2.7.1" extension="2014-06-09"/>
+    <code code="47519-4" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Procedures"/>
+    <title>Procedures</title>
+    <text>There are no current procedures at the time of this document's creation.</text>
+  </section>
+</component>
+        
+  <component>
+  <!--Encounters-->
+  <section>
+    <templateId root="2.16.840.1.113883.10.20.22.2.22.1" extension="2015-08-01"/> <!-- CCDA Template id -->
+    <!--Encounters section template-->
+    <code code="46240-8" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="History of encounters"/>
+    <title>Encounters</title>
+    <text>
+  <table border="1" width="100%">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Codes</th>
+        <th>Time</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td ID="encounters-desc-0">Emergency Room Admission</td>
+          <td ID="encounters-code-0">SNOMED-CT: 50849002 CPT: EMER<br/></td>
+          <td>November 19th, 2016 16:39 - November 19th, 2016 16:54</td>
+           
+        </tr>
+    </tbody>
+  </table>
+</text>
+
+
+       <entry>
+          <encounter classCode="ENC" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.22.4.49"></templateId>
+              <id nullFlavor="UNK"></id>
+              <id root="Facility0" extension="0"></id>
+
+              <code code="EMER" codeSystem="2.16.840.1.113883.6.12" displayName="Emergency Room Admission">
+  <originalText><reference value="#encounters-desc-0"/></originalText>
+  <translation code="50849002" codeSystem="2.16.840.1.113883.6.96" />
+</code>
+
+              <text>
+                <reference value="#encounters-desc-0"/>
+              </text>
+
+              <effectiveTime xsi:type="IVL_TS">
+                <low value='20161119163941'/>
+                <high value='20161119165441'/>
+              </effectiveTime>
+
+
+                <performer>
+                    <assignedEntity>
+                        <id extension="" root="2.16.840.1.113883.4.6"/>
+    					<code code="" displayName="" codeSystem="2.16.840.1.113883.6.101" codeSystemName="NUCC"/>
+
+                        <assignedPerson>
+                            <name>
+                                <family>INC,THE</family>
+                                <given>COOLEY</given>
+                            </name>
+                        </assignedPerson>                        
+                    </assignedEntity>
+                </performer>
+
+                <participant typeCode="LOC">
+                    <participantRole classCode="SDLOC">
+                        <templateId root="2.16.840.1.113883.10.20.22.4.32"/>
+                        <!-- Service Delivery Location template -->
+                        <code code="1060-3" codeSystem="2.16.840.1.113883.6.259" codeSystemName="HL7 HealthcareServiceLocation" displayName="Inpatient Medical Ward"/>
+                        <addr>
+                            <streetAddressLine>30 LOCUST STREET</streetAddressLine>
+                            <city>Northampton</city>
+                            <state>MA</state>
+                            <postalCode>01060</postalCode>
+                            <country>US</country>
+                        </addr>
+                        <playingEntity classCode="PLC">
+                            <name>COOLEY DICKINSON HOSPITAL INC,THE</name>
+                        </playingEntity>
+                    </participantRole>
+                </participant>
+
+
+
+            <entryRelationship typeCode="REFR">
+                <act classCode="ACT" moodCode="EVN">
+                    <!-- Encounter Diagnosis -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.80" extension="2015-08-01" />
+                    <templateId root="2.16.840.1.113883.10.20.22.4.80"/>
+                    <code code="29308-4" displayName="Diagnosis"
+                        codeSystem="2.16.840.1.113883.6.1"
+                        codeSystemName="LOINC"/>
+
+                    <entryRelationship typeCode="SUBJ">
+                        <observation classCode="OBS" moodCode="EVN">
+                            <!-- Problem Observation -->
+                            <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                            <templateId root="2.16.840.1.113883.10.20.22.4.4"/>
+                            <id root="d3329059-8f7a-4af0-8370-f1746e40d85c"/>
+                            <code code="282291009" displayName="Diagnosis" codeSystem="2.16.840.1.113883.6.96"
+                                codeSystemName="SNOMED CT">
+                                <translation code="29308-4" displayName="Diagnosis" codeSystem="2.16.840.1.113883.6.1"
+                                    codeSystemName="LOINC"/>
+                            </code>
+                            <statusCode code="completed"/>
+
+                            <effectiveTime>
+                              <low value='20161119163941'/>
+                            </effectiveTime>
+
+                            <value code="74400008" codeSystem="2.16.840.1.113883.6.96" xsi:type="CD"><originalText>Appendicitis</originalText></value>
+                        </observation>
+                    </entryRelationship>
+                </act>
+            </entryRelationship>
+
+
+          </encounter>
+      </entry>
+
+  </section>
+</component>
+        <component>
+  <!--Vital Signs: Patient has no current vital signs -->
+  <section nullFlavor="NI">
+    <templateId root="2.16.840.1.113883.10.20.22.2.4.1" extension="2015-08-01"/>
+    <!--Vital Signs section template-->
+    <code code="8716-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Vital signs"/>
+    <title>Vital Signs</title>
+    <text>There are no current vital signs at the time of this document's creation.</text>
+  </section>
+</component>
+        <component>
+  <!--Social History - CCDA-->
+  <section>
+    <templateId root="2.16.840.1.113883.10.20.22.2.17" extension="2015-08-01"/>
+    <!-- Social history section template -->
+    <code code="29762-2" codeSystem="2.16.840.1.113883.6.1"/>
+    <title>Social History</title>
+    <text>There is no current social history at the time of this document's creation.</text>
+  </section>
+</component>
+
+    </structuredBody>
+  </component>
+</ClinicalDocument>
