@@ -1,53 +1,52 @@
 {
-    "name": "Appendicitis",
-    "states": {
-        "Initial" : {
-            "type" : "Initial",
-            "direct_transition" : "Wait_for_Scheduled"
-        },
+  "name": "Appendicitis",
+  "states": {
+    "Initial": {
+      "type": "Initial",
+      "direct_transition": "Wait_for_Scheduled"
+    },
 
-        "Wait_for_Scheduled": {
-            "type": "Guard",
-            "allow": {
-                "condition_type": "Attribute",
-                "attribute": "perform_scheduled",
-                "operator": "==",
-                "value": true
-            },
-            "direct_transition": "Appendicitis_Condition"
-        },
+    "Wait_for_Scheduled": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Attribute",
+        "attribute": "perform_scheduled",
+        "operator": "==",
+        "value": true
+      },
+      "direct_transition": "Appendicitis_Condition"
+    },
 
-        "Appendicitis_Condition": {
-            "type": "ConditionOnset",
-            "target_encounter": "Appendicitis_Encounter",
-            "codes": [
-                {
-                    "system": "SNOMED-CT",
-                    "code": "74400008",
-                    "display": "Appendicitis"
-                }
-            ],
-            "direct_transition": "Appendicitis_Encounter"
-        },
-
-        
-        "Appendicitis_Encounter": {
-            "type": "Encounter",
-            "wellness": false,
-            "encounter_class": "emergency",
-            "reason": "Appendicitis_Condition",
-            "codes": [
-            {
-            "system": "SNOMED-CT",
-            "code": "50849002",
-            "display": "Emergency Room Admission"
-            }
-            ],
-            "direct_transition": "Terminal"
-            },    
-
-        "Terminal": {
-        "type": "Terminal"
+    "Appendicitis_Condition": {
+      "type": "ConditionOnset",
+      "target_encounter": "Appendicitis_Encounter",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "74400008",
+          "display": "Appendicitis"
         }
+      ],
+      "direct_transition": "Appendicitis_Encounter"
+    },
+
+    "Appendicitis_Encounter": {
+      "type": "Encounter",
+      "wellness": false,
+      "encounter_class": "emergency",
+      "reason": "Appendicitis_Condition",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "50849002",
+          "display": "Emergency Room Admission"
+        }
+      ],
+      "direct_transition": "Terminal"
+    },
+
+    "Terminal": {
+      "type": "Terminal"
     }
+  }
 }
