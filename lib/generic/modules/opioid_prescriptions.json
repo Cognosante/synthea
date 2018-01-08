@@ -1,0 +1,546 @@
+{
+  "name": "OPIOID_PRESCRIPTIONS",
+  "remarks": [
+    "Generates general opioid prescriptions in conjunction with related procedures and diagnoses"
+  ],
+  "states": {
+    "Initial": {
+      "type": "Initial",
+      "remarks": [
+        {
+          "distribution": 0.5,
+          "transition": "Pre_Back_Pain"
+        },
+        {
+          "remarks": "Can Synthea ensure 0.25 even make it here? They first need to be female.",
+          "distribution": 0.25,
+          "transition": "Caesarean_Delivery_Guard"
+        },
+        {
+          "distribution": 0.175,
+          "transition": "Pre_Knee_Replacement"
+        },
+        {
+          "distribution": 0.075,
+          "transition": "Pre_Pancreatic_Cancer"
+        }
+      ],
+      "direct_transition": "Pre_Caesarean_Delivery"
+    },
+
+    "_": "------------------------- Back Pain ----------------------------------",
+
+    "Pre_Back_Pain": {
+      "remarks": "Male or female, patient age 30 - 115 ... starting at age 16, add appropriate delay",
+      "type": "Delay",
+      "range": {
+        "low": 14,
+        "high": 99,
+        "unit": "years"
+      },
+      "direct_transition": "Back_Pain"
+    },
+
+    "Back_Pain": {
+      "remarks": "This creates a problem, using a Problem act template. Codes end up Healthshare table: HSAA.Problem",
+      "type": "ConditionOnset",
+      "target_encounter": "Back_Pain_Encounter",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "279039007",
+          "display": "Low back pain"
+        },
+        {
+          "system": "ICD-10-CM",
+          "code": "M54.5",
+          "display": "Low back pain"
+        }
+      ],
+      "direct_transition": "Back_Pain_Encounter"
+    },
+
+    "Back_Pain_Encounter" : {
+      "remarks": "This encounter is specifically to address the Back_Pain ConditionOnset (Problem). Because the reason attribute, the Problem gets diagnosed and an entry is added in HSAA.Diagnosis ... Synthea uses the JSON to fill in both sections of the CCDA; however, there exist no way to add additional specific information related to the diagnosis, such as the clinician who diagnosed, who it was entered by, diagnosis type, etc. because these concepts are tied together. Yes, you can't have a diagnosis without an underlying condition, but combining the instructions for both is limiting. In Healthshare, there will be an Encounter ID and with that, one could look up the implied diagnosing clinician. Anyone's guess about consults and other such technicalities.",
+      "type" : "Encounter",
+      "wellness" : false,
+      "encounter_class": "inpatient",
+      "reason": "Back_Pain",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "79491001",
+          "display": "Hospital-based radiology facility (environment)"
+        }
+      ],
+      "direct_transition" : "Back_Pain_Procedure"
+    },
+
+    "Back_Pain_Procedure": {
+      "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 72158)",
+      "type": "Procedure",
+      "duration": {
+        "low": 1,
+        "high": 2,
+        "unit": "hours"
+      },
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "72158",
+          "display": "Diagnostic Radiology (Diagnostic Imaging) Procedures of the Spine and Pelvis"
+        }
+      ],
+      "reason": "Back_Pain",
+      "direct_transition": "Post_Back_Pain_Procedure_Care"
+    },
+
+    "Post_Back_Pain_Procedure_Care": {
+      "remarks": "This may not be used in our ETL just yet, but good to see.",
+      "type": "CarePlanStart",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "787301000000101",
+          "display": "Surgery care management"
+        }
+      ],
+      "activities": [
+        {
+          "system": "SNOMED-CT",
+          "code": "183051005",
+          "display": "Recommendation to rest"
+        },
+        {
+          "system": "SNOMED-CT",
+          "code": "243077000",
+          "display": "Recommendation to limit sexual activity"
+        }
+      ],
+      "direct_transition": "Prescribe_Oxycodone"
+    },
+
+    "Prescribe_Oxycodone": {
+      "remarks": "Prescription for Oxycodone with 2 refills, instructions to take as needed. Instructions could also be from SNOMED.",
+      "type": "MedicationOrder",
+      "reason": "Back_Pain",
+      "assign_to_attribute": "opioid_prescription",
+      "codes": [
+        {
+          "system": "RxNorm",
+          "code": "1049683",
+          "display": "oxyCODONE Hydrochloride 10 MG Oral Tablet"
+        }
+      ],
+      "prescription": {
+        "dosage": {
+          "amount": 1,
+          "frequency": 1,
+          "period": 6,
+          "unit": "hours"
+        },
+        "duration": {
+          "quantity": 7,
+          "unit": "days"
+        },
+        "as_needed": true,
+        "refills": 5
+      },
+      "direct_transition": "End_Back_Pain_Encounter"
+    },
+
+    "End_Back_Pain_Encounter": {
+      "remarks": "Can adjust the distribution if desired...how many people get oxycodone",
+    	"type": "EncounterEnd",
+    	"distributed_transition": [
+        {
+          "distribution": 0.1,
+          "transition": "Strong_Opioid_Terminal"
+        }
+      ]
+    },
+
+    "__": "------------------------- Caesarean Delivery ----------------------------------",
+
+    "Caesarean_Delivery_Guard": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Gender",
+        "gender": "F"
+      },
+      "direct_transition": "Pre_Caesarean_Delivery"
+    },
+
+    "Pre_Caesarean_Delivery": {
+      "remarks": "Female, patient age 16 - 45 ... population starting at age 16, add appropriate delay",
+      "type": "Delay",
+      "range": {
+        "low": 14,
+        "high": 29,
+        "unit": "years"
+      },
+      "direct_transition": "Pregnancy"
+    },
+
+    "Pregnancy": {
+      "type": "ConditionOnset",
+      "target_encounter": "Caesarean_Delivery_Encounter",
+      "codes": [
+        {
+          "system": "ICD-10-CM",
+          "code": "O75.82",
+          "display": "Onset (spontaneous) of labor after 37 completed weeks of gestation but before 39 completed weeks gestation, with delivery by (planned) cesarean section"
+        }
+      ],
+      "direct_transition": "Caesarean_Delivery_Encounter"
+    },
+
+    "Caesarean_Delivery_Encounter" : {
+      "remarks": "This encounter is specifically to address the Pregnancy ConditionOnset (Problem).",
+      "type" : "Encounter",
+      "wellness" : false,
+      "encounter_class": "inpatient",
+      "reason": "Pregnancy",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "52668009",
+          "display": "Hospital-based birthing center (environment)"
+        }
+      ],
+      "direct_transition" : "Caesarean_Delivery_Procedure"
+    },
+
+    "Caesarean_Delivery_Procedure": {
+      "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 59510)",
+      "type": "Procedure",
+      "duration": {
+        "low": 2,
+        "high": 3,
+        "unit": "hours"
+      },
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "59510",
+          "display": "Routine obstetric care including antepartum care, cesarean delivery, and postpartum care"
+        }
+      ],
+      "reason": "Pregnancy",
+      "direct_transition": "Post_Caesarean_Delivery_Procedure_Care"
+    },
+
+    "Post_Caesarean_Delivery_Procedure_Care": {
+      "remarks": "This may not be used in our ETL just yet, but good to see.",
+      "type": "CarePlanStart",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "787301000000101",
+          "display": "Surgery care management"
+        }
+      ],
+      "activities": [
+        {
+          "system": "SNOMED-CT",
+          "code": "183051005",
+          "display": "Recommendation to rest"
+        },
+        {
+          "system": "SNOMED-CT",
+          "code": "243077000",
+          "display": "Recommendation to limit sexual activity"
+        }
+      ],
+      "direct_transition": "Prescribe_Vicodin"
+    },
+
+    "Prescribe_Vicodin": {
+      "remarks": "Prescription for Vicodin with 0 - 1 refills, for 7 - 28 days",
+      "type": "MedicationOrder",
+      "reason": "Pregnancy",
+      "assign_to_attribute": "opioid_prescription",
+      "codes": [
+        {
+          "system": "RxNorm",
+          "code": "1310270",
+          "display": "Acetaminophen 300 MG / HYDROcodone Bitartrate 10 MG [Vicodin]"
+        }
+      ],
+      "prescription": {
+        "dosage": {
+          "amount": 1,
+          "frequency": 1,
+          "period": 6,
+          "unit": "hours"
+        },
+        "duration": {
+          "quantity": 7,
+          "unit": "days"
+        },
+        "refills": 1
+      },
+      "direct_transition": "End_Caesarean_Delivery_Encounter"
+    },
+
+    "End_Caesarean_Delivery_Encounter": {
+    	"type": "EncounterEnd"
+    },
+
+    "___": "------------------------- Knee Replacement ----------------------------------",
+
+    "Pre_Knee_Replacement": {
+      "remarks": "Male or female patient age 50 - 115 ... population starting at age 16, add appropriate delay",
+      "type": "Delay",
+      "range": {
+        "low": 34,
+        "high": 99,
+        "unit": "years"
+      },
+      "direct_transition": "Knee_Problem"
+    },
+
+    "Knee_Problem": {
+      "type": "ConditionOnset",
+      "target_encounter": "Knee_Arthroplasty_Encounter",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "30989003",
+          "display": "Knee pain (finding)"
+        }
+      ],
+      "direct_transition": "Knee_Arthroplasty_Encounter"
+    },
+
+    "Knee_Arthroplasty_Encounter" : {
+      "remarks": "This encounter is specifically to address the knee problem.",
+      "type" : "Encounter",
+      "wellness" : false,
+      "encounter_class": "inpatient",
+      "reason": "Knee_Problem",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "702933008",
+          "display": "Orthopedic clinic (environment)"
+        },
+        {
+          "system": "ICD-10-CM",
+          "code": "M17.11",
+          "display": "Unilateral primary osteoarthritis, right knee"
+        }
+      ],
+      "direct_transition" : "Knee_Arthroplasty_Procedure"
+    },
+
+    "Knee_Arthroplasty_Procedure": {
+      "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 59510)",
+      "type": "Procedure",
+      "duration": {
+        "low": 0.5,
+        "high": 3,
+        "unit": "hours"
+      },
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "27447",
+          "display": "Total Knee Arthroplasty"
+        }
+      ],
+      "reason": "Knee_Pain",
+      "direct_transition": "Post_Knee_Arthroplasty_Procedure_Care"
+    },
+
+    "Post_Knee_Arthroplasty_Procedure_Care": {
+      "remarks": "This may not be used in our ETL just yet, but good to see.",
+      "type": "CarePlanStart",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "787301000000101",
+          "display": "Surgery care management"
+        }
+      ],
+      "activities": [
+        {
+          "system": "SNOMED-CT",
+          "code": "183051005",
+          "display": "Recommendation to rest"
+        },
+        {
+          "system": "SNOMED-CT",
+          "code": "243077000",
+          "display": "Recommendation to limit sexual activity"
+        }
+      ],
+      "direct_transition": "Prescribe_Percoset"
+    },
+
+    "Prescribe_Percoset": {
+      "remarks": "Prescription for Percoset with 0 - 8 refills, for 7 - 360 days",
+      "type": "MedicationOrder",
+      "reason": "Knee_Pain",
+      "assign_to_attribute": "opioid_prescription",
+      "codes": [
+        {
+          "system": "RxNorm",
+          "code": "1049624",
+          "display": "Acetaminophen 325 MG / oxyCODONE Hydrochloride 10 MG [Percocet]"
+        }
+      ],
+      "prescription": {
+        "dosage": {
+          "amount": 1,
+          "frequency": 1,
+          "period": 6,
+          "unit": "hours"
+        },
+        "duration": {
+          "quantity": 7,
+          "unit": "days"
+        },
+        "refills": 1
+      },
+      "direct_transition": "End_Knee_Arthroplasty_Encounter"
+    },
+
+    "End_Knee_Arthroplasty_Encounter": {
+    	"type": "EncounterEnd"
+    },
+
+    "____": "------------------------- Pancreatic Cancer (Terminal) ----------------------------------",
+    
+    "Pre_Pancreatic Cancer": {
+      "remarks": "Male or female, patient age 30 - 115 ... starting at age 16, add appropriate delay",
+      "type": "Delay",
+      "range": {
+        "low": 34,
+        "high": 99,
+        "unit": "years"
+      },
+      "direct_transition": "Pancreatic_Cancer"
+    },
+
+    "Pancreatic_Cancer": {
+      "remarks": "This creates a problem, using a Problem act template. Codes end up Healthshare table: HSAA.Problem",
+      "type": "ConditionOnset",
+      "target_encounter": "Pancreatic_Cancer_Encounter",
+      "codes": [
+        {
+          "system": "ICD-10-CM",
+          "code": "C25.9",
+          "display": "Malignant neoplasm of pancreas, unspecified"
+        }
+      ],
+      "direct_transition": "Pancreatic_Cancer_Encounter"
+    },
+
+    "Pancreatic_Cancer_Encounter" : {
+      "remarks": "This encounter is specifically to address the Pancreatic Cancer ConditionOnset (Problem)",
+      "type" : "Encounter",
+      "wellness" : false,
+      "encounter_class": "inpatient",
+      "reason": "Pancreatic_Cancer",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "89972002",
+          "display": "Hospital-based outpatient oncology clinic (environment)"
+        }
+      ],
+      "direct_transition" : "Pancreatic_Cancer_Procedure"
+    },
+
+    "Pancreatic_Cancer_Procedure": {
+      "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 48100)",
+      "type": "Procedure",
+      "duration": {
+        "low": 1,
+        "high": 2,
+        "unit": "hours"
+      },
+      "codes": [
+        {
+          "system": "CPT",
+          "code": "48100",
+          "display": "Open biopsy of pancreas"
+        }
+      ],
+      "reason": "Pancreatic_Cancer",
+      "direct_transition": "Post_Pancreatic_Cancer_Procedure_Care"
+    },
+
+    "Post_Pancreatic_Cancer_Procedure_Care": {
+      "remarks": "This may not be used in our ETL just yet, but good to see.",
+      "type": "CarePlanStart",
+      "codes": [
+        {
+          "system": "SNOMED-CT",
+          "code": "787301000000101",
+          "display": "Surgery care management"
+        }
+      ],
+      "activities": [
+        {
+          "system": "SNOMED-CT",
+          "code": "183051005",
+          "display": "Recommendation to rest"
+        },
+        {
+          "system": "SNOMED-CT",
+          "code": "243077000",
+          "display": "Recommendation to limit sexual activity"
+        }
+      ],
+      "direct_transition": "Prescribe_Oxycodone"
+    },
+
+    "Prescribe_Fentanyl": {
+      "remarks": "Prescription for Fentanyl with 0 - 12 refills for 30 - 360 days",
+      "type": "MedicationOrder",
+      "reason": "Pancreatic_Cancer",
+      "assign_to_attribute": "opioid_prescription",
+      "codes": [
+        {
+          "system": "RxNorm",
+          "code": "574656",
+          "display": "fentaNYL 0.1 MG/HR [Duragesic]"
+        }
+      ],
+      "prescription": {
+        "dosage": {
+          "amount": 1,
+          "frequency": 1,
+          "period": 6,
+          "unit": "hours"
+        },
+        "duration": {
+          "quantity": 7,
+          "unit": "days"
+        },
+        "as_needed": true,
+        "refills": 5
+      },
+      "direct_transition": "End_Pancreatic_Cancer_Encounter"
+    },
+
+    "End_Pancreatic_Cancer_Encounter": {
+      "remarks": "Can adjust the distribution if desired...how many people get oxycodone",
+    	"type": "EncounterEnd",
+    	"distributed_transition": [
+        {
+          "distribution": 0.8,
+          "transition": "Strong_Opioid_Terminal"
+        }
+      ]
+    },
+
+    "_______": "--------------------------------------",
+
+    "Strong_Opioid_Terminal": {
+      "type": "Terminal"
+    }
+  }
+}
