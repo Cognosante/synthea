@@ -48,7 +48,7 @@ module Synthea
       class Exact < Component
         attr_accessor :quantity
         required_field :quantity
-
+        
         def value
           quantity
         end
@@ -57,7 +57,7 @@ module Synthea
       class ExactWithUnit < Exact
         attr_accessor :unit
         required_field :unit
-
+        
         def value
           quantity.send(unit)
         end
@@ -98,13 +98,20 @@ module Synthea
         metadata 'duration', type: 'Components::ExactWithUnit', min: 1, max: 1
         metadata 'instructions', type: 'Components::Code', min: 0, max: Float::INFINITY
 
+        def duration
+          # Allow an array to be passed, random sample from it.
+          if @duration.quantity.kind_of?(Array)
+            duration = Synthea::Generic::Components::ExactWithUnit.new({quantity: @duration.quantity.sample, unit: @duration.unit})
+          end
+        end
+
         def doses
           # Returns the total number of doses based on the dosage and duration.
           # This is used to infer the total number of doses in a prescription.
           if @as_needed
             0
           else
-            (duration.value / dosage.period_value) * dosage.amount * dosage.frequency
+            (duration.quantity / dosage.period_value) * dosage.amount * dosage.frequency
           end
         end
 
@@ -122,6 +129,16 @@ module Synthea
           end
           fi
         end
+
+        # Allow an array to be passed in the JSON module syntax.
+        # Handle that by picking a random element in the array.
+        # [0, 5] would be zero to five refills.
+        def refills
+          if @refills.kind_of?(Array)
+            refills = @refills.sample
+          end
+        end     
+
       end
     end
   end

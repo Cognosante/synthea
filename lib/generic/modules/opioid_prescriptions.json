@@ -6,13 +6,12 @@
   "states": {
     "Initial": {
       "type": "Initial",
-      "remarks": [
+      "distributed_transition": [
         {
           "distribution": 0.5,
           "transition": "Pre_Back_Pain"
         },
         {
-          "remarks": "Can Synthea ensure 0.25 even make it here? They first need to be female.",
           "distribution": 0.25,
           "transition": "Caesarean_Delivery_Guard"
         },
@@ -24,8 +23,7 @@
           "distribution": 0.075,
           "transition": "Pre_Pancreatic_Cancer"
         }
-      ],
-      "direct_transition": "Pre_Caesarean_Delivery"
+      ]
     },
 
     "_": "------------------------- Back Pain ----------------------------------",
@@ -117,19 +115,19 @@
           "display": "Recommendation to limit sexual activity"
         }
       ],
-      "direct_transition": "Prescribe_Oxycodone"
+      "direct_transition": "Prescribe_Lortab"
     },
 
-    "Prescribe_Oxycodone": {
-      "remarks": "Prescription for Oxycodone with 2 refills, instructions to take as needed. Instructions could also be from SNOMED.",
+    "Prescribe_Lortab": {
+      "remarks": "Prescription for Lortab",
       "type": "MedicationOrder",
       "reason": "Back_Pain",
       "assign_to_attribute": "opioid_prescription",
       "codes": [
         {
           "system": "RxNorm",
-          "code": "1049683",
-          "display": "oxyCODONE Hydrochloride 10 MG Oral Tablet"
+          "code": "1495471",
+          "display": "Acetaminophen 325 MG / HYDROcodone Bitartrate 10 MG [Lortab]"
         }
       ],
       "prescription": {
@@ -140,11 +138,10 @@
           "unit": "hours"
         },
         "duration": {
-          "quantity": 7,
+          "quantity": [7, 360],
           "unit": "days"
         },
-        "as_needed": true,
-        "refills": 5
+        "refills": [0, 12]
       },
       "direct_transition": "End_Back_Pain_Encounter"
     },
@@ -152,12 +149,7 @@
     "End_Back_Pain_Encounter": {
       "remarks": "Can adjust the distribution if desired...how many people get oxycodone",
     	"type": "EncounterEnd",
-    	"distributed_transition": [
-        {
-          "distribution": 0.1,
-          "transition": "Strong_Opioid_Terminal"
-        }
-      ]
+    	"direct_transition": "Opioid_Terminal"
     },
 
     "__": "------------------------- Caesarean Delivery ----------------------------------",
@@ -275,16 +267,17 @@
           "unit": "hours"
         },
         "duration": {
-          "quantity": 7,
+          "quantity": [7, 28],
           "unit": "days"
         },
-        "refills": 1
+        "refills": [0, 1]
       },
       "direct_transition": "End_Caesarean_Delivery_Encounter"
     },
 
     "End_Caesarean_Delivery_Encounter": {
-    	"type": "EncounterEnd"
+      "type": "EncounterEnd",
+      "direct_transition": "Opioid_Terminal"
     },
 
     "___": "------------------------- Knee Replacement ----------------------------------",
@@ -398,21 +391,22 @@
           "unit": "hours"
         },
         "duration": {
-          "quantity": 7,
+          "quantity": [7, 360],
           "unit": "days"
         },
-        "refills": 1
+        "refills": [0, 1]
       },
       "direct_transition": "End_Knee_Arthroplasty_Encounter"
     },
 
     "End_Knee_Arthroplasty_Encounter": {
-    	"type": "EncounterEnd"
+      "type": "EncounterEnd",
+      "direct_transition": "Opioid_Terminal"
     },
 
     "____": "------------------------- Pancreatic Cancer (Terminal) ----------------------------------",
     
-    "Pre_Pancreatic Cancer": {
+    "Pre_Pancreatic_Cancer": {
       "remarks": "Male or female, patient age 30 - 115 ... starting at age 16, add appropriate delay",
       "type": "Delay",
       "range": {
@@ -517,11 +511,10 @@
           "unit": "hours"
         },
         "duration": {
-          "quantity": 7,
+          "quantity": [30, 360],
           "unit": "days"
         },
-        "as_needed": true,
-        "refills": 5
+        "refills": [0, 12]
       },
       "direct_transition": "End_Pancreatic_Cancer_Encounter"
     },
@@ -529,17 +522,12 @@
     "End_Pancreatic_Cancer_Encounter": {
       "remarks": "Can adjust the distribution if desired...how many people get oxycodone",
     	"type": "EncounterEnd",
-    	"distributed_transition": [
-        {
-          "distribution": 0.8,
-          "transition": "Strong_Opioid_Terminal"
-        }
-      ]
+    	"direct_transition": "Opioid_Terminal"
     },
 
     "_______": "--------------------------------------",
 
-    "Strong_Opioid_Terminal": {
+    "Opioid_Terminal": {
       "type": "Terminal"
     }
   }
