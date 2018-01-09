@@ -91,7 +91,9 @@ module Synthea
       end
 
       class Prescription < Component
-        attr_accessor :as_needed, :dosage, :duration, :instructions, :refills
+        attr_accessor :as_needed, :dosage, :instructions, :refills
+        attr_writer :duration
+
         required_field or: [:as_needed, and: [:dosage, :duration]]
 
         metadata 'dosage', type: 'Components::Dosage', min: 1, max: 1
@@ -100,9 +102,11 @@ module Synthea
 
         def duration
           # Allow an array to be passed, random sample from it.
-          if @duration.quantity.kind_of?(Array)
-            duration = Synthea::Generic::Components::ExactWithUnit.new({quantity: @duration.quantity.sample, unit: @duration.unit})
+          if @duration.quantity.kind_of?(Array)            
+            @duration.quantity = rand(@duration.quantity.first .. @duration.quantity.last)
           end
+
+          @duration
         end
 
         def doses
