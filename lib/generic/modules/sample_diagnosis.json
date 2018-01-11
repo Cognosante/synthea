@@ -42,6 +42,45 @@
           "display": "Emergency Room Admission"
         }
       ],
+      "direct_transition": "Flareup_Corticosteroid"
+    },
+
+    "Flareup_Corticosteroid": {
+      "type": "MedicationOrder",
+      "target_encounter": "Appendicitis_Encounter",
+      "reason": "Lupus",
+      "remarks": [
+        "When introduced in higher levels than those produced by the body, corticosteroids ",
+        "inhibit inflammation. However, doctors prefer to use these for as short a time period ",
+        "as possible to avoid dangerous side effects."
+      ],
+      "codes": [
+        {
+          "system": "RxNorm",
+          "code": "567645",
+          "display": "predniSONE 2.5 MG [Deltasone]"
+        }
+      ],
+      "prescription": {
+        "refills": 2,
+        "dosage": {
+          "amount": 1,
+          "frequency": 2,
+          "period": 1,
+          "unit": "days"
+        },
+        "duration": {
+          "quantity": [2,8],
+          "unit": "weeks"
+        },
+        "instructions": [
+          {
+            "system": "SNOMED-CT",
+            "code": "311501008",
+            "display": "Half to one hour before food"
+          }
+        ]
+      },
       "direct_transition": "Terminal"
     },
 

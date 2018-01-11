@@ -156,6 +156,7 @@ synthea:
   ext:
     name_prefix: 'SAMPLE-DIAGNOSIS-'
     patients_json: './ext/patients.json'
+    providers_json: './ext/providers.json'
     min_age: 18
     max_age: 85
     min_encounter_time: <%= 59.months.ago %>

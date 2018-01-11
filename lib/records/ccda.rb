@@ -200,16 +200,25 @@ module Synthea
           'family_name' => e['name'].split.last,
           'npi' => e['npi'],
           'specialty' => e['specialty'],
-          'taxonomy_code' => e['taxonomy_code']
-        )
-
-        facility = ::Facility.new(
-          'name' => e['name'],
+          'taxonomy_code' => e['taxonomy_code'],
           'addresses' => [::Address.new(
             'street' => [e["address"]],
             'city' => e["city"],
             'state' => e["state"],
             'zip' => e["city_zip"]
+          )]
+        )
+
+        # FIXME eventually performers and facilities should be different
+        f = encounter[:provider].attributes
+
+        facility = ::Facility.new(
+          'name' => f['name'],
+          'addresses' => [::Address.new(
+            'street' => [f["address"]],
+            'city' => f["city"],
+            'state' => f["state"],
+            'zip' => f["city_zip"]
           )]
         )
         
@@ -278,6 +287,9 @@ module Synthea
       end
 
       def self.medications(prescription, ccda_record)
+
+        current_encounter = ccda_record.encounters.last
+        
         type = prescription['type']
         time = prescription['time']
 
@@ -285,7 +297,8 @@ module Synthea
           'codes' => MEDICATION_LOOKUP[type][:codes],
           'description' => MEDICATION_LOOKUP[type][:description],
           'start_time' => time.to_i,
-          'reason' => COND_LOOKUP[prescription['reasons'][0]] # some data is lost here b/c HDS does not support multiple reasons.
+          'reason' => COND_LOOKUP[prescription['reasons'][0]], # some data is lost here b/c HDS does not support multiple reasons.
+          'prescriber' => current_encounter.performer
         )
 
         unless prescription['rx_info'].empty? || prescription['rx_info']['as_needed']
