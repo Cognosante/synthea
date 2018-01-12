@@ -6,10 +6,21 @@
   "states": {
     "Initial": {
       "type": "Initial",
+      "direct_transition": "Wait_for_Scheduled"
+    },
+
+    "Wait_for_Scheduled": {
+      "type": "Guard",
+      "allow": {
+        "condition_type": "Attribute",
+        "attribute": "perform_scheduled",
+        "operator": "==",
+        "value": true
+      },
       "distributed_transition": [
         {
           "distribution": 0.5,
-          "transition": "Pre_Back_Pain"
+          "transition": "Back_Pain"
         },
         {
           "distribution": 0.25,
@@ -17,27 +28,16 @@
         },
         {
           "distribution": 0.175,
-          "transition": "Pre_Knee_Replacement"
+          "transition": "Knee_Problem"
         },
         {
           "distribution": 0.075,
-          "transition": "Pre_Pancreatic_Cancer"
+          "transition": "Pancreatic_Cancer"
         }
       ]
     },
 
     "_": "------------------------- Back Pain ----------------------------------",
-
-    "Pre_Back_Pain": {
-      "remarks": "Male or female, patient age 30 - 115 ... starting at age 16, add appropriate delay",
-      "type": "Delay",
-      "range": {
-        "low": 14,
-        "high": 99,
-        "unit": "years"
-      },
-      "direct_transition": "Back_Pain"
-    },
 
     "Back_Pain": {
       "remarks": "This creates a problem, using a Problem act template. Codes end up Healthshare table: HSAA.Problem",
@@ -78,8 +78,8 @@
       "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 72158)",
       "type": "Procedure",
       "duration": {
-        "low": 1,
-        "high": 2,
+        "low": 0,
+        "high": 0,
         "unit": "hours"
       },
       "codes": [
@@ -160,17 +160,6 @@
         "condition_type": "Gender",
         "gender": "F"
       },
-      "direct_transition": "Pre_Caesarean_Delivery"
-    },
-
-    "Pre_Caesarean_Delivery": {
-      "remarks": "Female, patient age 16 - 45 ... population starting at age 16, add appropriate delay",
-      "type": "Delay",
-      "range": {
-        "low": 14,
-        "high": 29,
-        "unit": "years"
-      },
       "direct_transition": "Pregnancy"
     },
 
@@ -207,8 +196,8 @@
       "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 59510)",
       "type": "Procedure",
       "duration": {
-        "low": 2,
-        "high": 3,
+        "low": 0,
+        "high": 0,
         "unit": "hours"
       },
       "codes": [
@@ -282,17 +271,6 @@
 
     "___": "------------------------- Knee Replacement ----------------------------------",
 
-    "Pre_Knee_Replacement": {
-      "remarks": "Male or female patient age 50 - 115 ... population starting at age 16, add appropriate delay",
-      "type": "Delay",
-      "range": {
-        "low": 34,
-        "high": 99,
-        "unit": "years"
-      },
-      "direct_transition": "Knee_Problem"
-    },
-
     "Knee_Problem": {
       "type": "ConditionOnset",
       "target_encounter": "Knee_Arthroplasty_Encounter",
@@ -331,8 +309,8 @@
       "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 59510)",
       "type": "Procedure",
       "duration": {
-        "low": 0.5,
-        "high": 3,
+        "low": 0,
+        "high": 0,
         "unit": "hours"
       },
       "codes": [
@@ -406,17 +384,6 @@
 
     "____": "------------------------- Pancreatic Cancer (Terminal) ----------------------------------",
     
-    "Pre_Pancreatic_Cancer": {
-      "remarks": "Male or female, patient age 30 - 115 ... starting at age 16, add appropriate delay",
-      "type": "Delay",
-      "range": {
-        "low": 34,
-        "high": 99,
-        "unit": "years"
-      },
-      "direct_transition": "Pancreatic_Cancer"
-    },
-
     "Pancreatic_Cancer": {
       "remarks": "This creates a problem, using a Problem act template. Codes end up Healthshare table: HSAA.Problem",
       "type": "ConditionOnset",
@@ -451,8 +418,8 @@
       "remarks": "This should end up in HSAA.HSAAProcedure (HSAAProcedure_SDACodingStandard will be C4 and HSAAProcedure_Code will be 48100)",
       "type": "Procedure",
       "duration": {
-        "low": 1,
-        "high": 2,
+        "low": 0,
+        "high": 0,
         "unit": "hours"
       },
       "codes": [
@@ -488,7 +455,7 @@
           "display": "Recommendation to limit sexual activity"
         }
       ],
-      "direct_transition": "Prescribe_Oxycodone"
+      "direct_transition": "Prescribe_Fentanyl"
     },
 
     "Prescribe_Fentanyl": {

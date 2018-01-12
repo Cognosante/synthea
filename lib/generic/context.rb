@@ -133,6 +133,8 @@ module Synthea
         return States::Terminal.new(self, 'Terminal') if state_name.nil?
         clazz = state_config(state_name)['type']
 
+        # puts state_name
+        
         Object.const_get("Synthea::Generic::States::#{clazz}").new(self, state_name)
       end
 

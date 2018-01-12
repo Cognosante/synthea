@@ -91,8 +91,8 @@ module Synthea
       end
 
       class Prescription < Component
-        attr_accessor :as_needed, :dosage, :instructions, :refills
-        attr_writer :duration
+        attr_accessor :as_needed, :dosage, :instructions
+        attr_writer :duration, :refills
 
         required_field or: [:as_needed, and: [:dosage, :duration]]
 
@@ -108,6 +108,15 @@ module Synthea
 
           @duration
         end
+
+        def refills
+          # Allow an array to be passed, random sample from it.
+          if @refills.kind_of?(Array)
+            @refills = rand(@refills.first .. @refills.last)
+          end
+
+          @refills
+        end     
 
         def doses
           # Returns the total number of doses based on the dosage and duration.
@@ -133,15 +142,6 @@ module Synthea
           end
           fi
         end
-
-        # Allow an array to be passed in the JSON module syntax.
-        # Handle that by picking a random element in the array.
-        # [0, 5] would be zero to five refills.
-        def refills
-          if @refills.kind_of?(Array)
-            refills = @refills.sample
-          end
-        end     
 
       end
     end
