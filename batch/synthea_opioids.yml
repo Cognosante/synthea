@@ -164,5 +164,5 @@ synthea:
     max_encounter_time: <%= 1.months.ago %>
     natural_deaths: false
     default_modules: false
-    synthea_modules: ['generic.rb', 'lifecycle.rb', 'encounters.rb', 'immunizations.rb', 'cardiovascular_disease.rb']
+    synthea_modules: ['generic.rb', 'lifecycle.rb', 'encounters.rb']
     generic_modules: ['opioid_prescriptions.json']
