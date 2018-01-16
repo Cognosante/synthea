@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/Cognosante/health-data-standards.git
-  revision: 0eaab4352d059a976ebdb591e859fd5b0ea910f0
-  branch: synthea_ccda
+  revision: 184919b1d47ca4947ef4a1e8412a6f8c2a1a0428
+  ref: 184919b1d47ca4947ef4a1e8412a6f8c2a1a0428
   specs:
     health-data-standards (3.6.1)
       activesupport (~> 4.2.0)
@@ -80,6 +80,7 @@ GEM
     faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
+    ffi (1.9.18)
     ffi (1.9.18-java)
     ffi (1.9.18-x64-mingw32)
     fhir_client (3.0.2)

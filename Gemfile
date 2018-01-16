@@ -9,8 +9,9 @@ gem 'pickup'
 gem 'recursive-open-struct'
 gem 'byebug'
 
-gem 'health-data-standards', git: 'https://github.com/Cognosante/health-data-standards.git', branch: 'synthea_ccda'
-#gem 'health-data-standards', path: '../health-data-standards/'
+# gem 'health-data-standards', git: 'https://github.com/Cognosante/health-data-standards.git', branch: 'synthea_ccda'
+gem 'health-data-standards', git: 'https://github.com/Cognosante/health-data-standards.git', ref: '184919b1d47ca4947ef4a1e8412a6f8c2a1a0428'
+# gem 'health-data-standards', path: '../health-data-standards/'
 
 gem 'georuby'
 gem 'net-sftp'
