@@ -73,6 +73,10 @@ module Synthea
         end
       end
 
+      class EncounterOptions < Component
+        attr_accessor :provider
+      end
+
       class CareGoal < Component
         attr_accessor :observation, :text, :addresses, :codes
         required_field or: [:observation, :text, :codes]

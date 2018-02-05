@@ -80,7 +80,6 @@ GEM
     faraday (0.12.1)
       multipart-post (>= 1.2, < 3)
     fastercsv (1.5.5)
-    ffi (1.9.18)
     ffi (1.9.18-java)
     ffi (1.9.18-x64-mingw32)
     fhir_client (3.0.2)

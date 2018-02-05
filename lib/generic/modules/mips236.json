@@ -24,6 +24,9 @@
     "Encounter": {
       "type": "Encounter",
       "encounter_class": "ambulatory",
+      "options": {
+        "provider": {"specialty": "Cardiologist"}
+      },
       "codes": [
         {
           "system": "CPT",

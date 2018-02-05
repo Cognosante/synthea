@@ -23,6 +23,8 @@ module Synthea
         metadata 'complex_transition', store_as: 'transition', type: 'Transitions::ComplexTransition'
         metadata 'type', ignore: true
 
+        metadata 'provider', ignore: true
+
         def initialize(context, name)
           @context = context
           @name = name
@@ -249,11 +251,13 @@ module Synthea
       end
 
       class Encounter < State
-        attr_accessor :wellness, :processed, :time, :codes, :encounter_class, :reason
+        attr_accessor :wellness, :processed, :time, :codes, :encounter_class, :reason, :options
 
         required_field or: [:wellness, and: [:codes, :encounter_class]]
 
         metadata 'codes', type: 'Components::Code', min: 1, max: Float::INFINITY
+
+        metadata 'options', type: 'Components::EncounterOptions'
 
         def process(time, entity)
           unless @wellness
@@ -286,6 +290,7 @@ module Synthea
 
           # find closest service provider
           service = @encounter_class
+          # TODO: If EncounterOptions (eg. options.provider.specialty), make another "find()" method to choose type of provider, etc.
           provider = Synthea::Provider.find_closest_service(entity, service)
 
           # hash below is added so that procedures during encounters will have a reference to provider
