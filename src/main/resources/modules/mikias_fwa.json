@@ -1,0 +1,339 @@
+{
+    "name": "FWA Multiple_Encounters_Distributed_Transitions",
+    "remarks": [
+        "This module defines multiple encounters with distributed transitions to various procedures, including unnecessary services and phantom charges."
+    ],
+    "states": {
+        "Initial": {
+            "type": "Initial",
+            "name": "Initial",
+            "distributed_transition": [
+                {
+                    "transition": "Flu_Test_Encounter",
+                    "distribution": 0.4
+                },
+                {
+                    "transition": "Routine_Checkup_Encounter",
+                    "distribution": 0.3
+                },
+                {
+                    "transition": "Specialist_Encounter",
+                    "distribution": 0.3
+                }
+            ]
+        },
+        "Flu_Test_Encounter": {
+            "type": "Encounter",
+            "encounter_class": "ambulatory",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "410620009",
+                    "display": "Encounter for influenza test"
+                }
+            ],
+            "name": "Flu_Test_Encounter",
+            "direct_transition": "Flu_Distribution_Procedures"
+        },
+        "Flu_Distribution_Procedures": {
+            "type": "Simple",
+            "name": "Flu_Distribution_Procedures",
+            "remarks": [
+                "Randomly determine if the patient receives unnecessary procedures and/or phantom charges."
+            ],
+            "distributed_transition": [
+                {
+                    "transition": "Flu_Test",
+                    "distribution": 0.4
+                },
+                {
+                    "transition": "Unnecessary_Blood_Test",
+                    "distribution": 0.3
+                },
+                {
+                    "transition": "Phantom_Charges",
+                    "distribution": 0.3
+                }
+            ]
+        },
+        "Flu_Test": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "441888005",
+                    "display": "Influenza virus testing"
+                }
+            ],
+            "duration": {
+                "low": 10,
+                "high": 20,
+                "unit": "minutes"
+            },
+            "name": "Flu_Test",
+            "direct_transition": "End_Flu_Test_Encounter"
+        },
+        "Unnecessary_Blood_Test": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "122592007",
+                    "display": "Unnecessary blood test"
+                }
+            ],
+            "duration": {
+                "low": 15,
+                "high": 30,
+                "unit": "minutes"
+            },
+            "name": "Unnecessary_Blood_Test",
+            "direct_transition": "End_Flu_Test_Encounter"
+        },
+        "Phantom_Charges": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "122592007",
+                    "display": "Phantom blood test charge"
+                },
+                {
+                    "system": "SNOMED-CT",
+                    "code": "123456789",
+                    "display": "Phantom MRI charge"
+                }
+            ],
+            "duration": {
+                "low": 0,
+                "high": 0,
+                "unit": "minutes"
+            },
+            "name": "Phantom_Charges",
+            "direct_transition": "End_Flu_Test_Encounter"
+        },
+        "End_Flu_Test_Encounter": {
+            "type": "EncounterEnd",
+            "name": "End_Flu_Test_Encounter",
+            "direct_transition": "Delay_Before_Next_Flu_Encounter"
+        },
+        "Routine_Checkup_Encounter": {
+            "type": "Encounter",
+            "encounter_class": "ambulatory",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "185349003",
+                    "display": "Encounter for 'check-up'"
+                }
+            ],
+            "name": "Routine_Checkup_Encounter",
+            "direct_transition": "Routine_Procedures_Distribution"
+        },
+        "Routine_Procedures_Distribution": {
+            "type": "Simple",
+            "name": "Routine_Procedures_Distribution",
+            "distributed_transition": [
+                {
+                    "transition": "Routine_Blood_Test",
+                    "distribution": 0.5
+                },
+                {
+                    "transition": "Routine_Phantom_Charges",
+                    "distribution": 0.5
+                }
+            ]
+        },
+        "Routine_Blood_Test": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "45057001",
+                    "display": "Routine blood test"
+                }
+            ],
+            "duration": {
+                "low": 15,
+                "high": 30,
+                "unit": "minutes"
+            },
+            "name": "Routine_Blood_Test",
+            "direct_transition": "End_Routine_Checkup_Encounter"
+        },
+        "Routine_Phantom_Charges": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "45057001",
+                    "display": "Phantom routine blood test charge"
+                },
+                {
+                    "system": "SNOMED-CT",
+                    "code": "123456789",
+                    "display": "Phantom routine MRI charge"
+                }
+            ],
+            "duration": {
+                "low": 0,
+                "high": 0,
+                "unit": "minutes"
+            },
+            "name": "Routine_Phantom_Charges",
+            "direct_transition": "End_Routine_Checkup_Encounter"
+        },
+        "End_Routine_Checkup_Encounter": {
+            "type": "EncounterEnd",
+            "name": "End_Routine_Checkup_Encounter",
+            "direct_transition": "Delay_Before_Next_Routine_Encounter"
+        },
+        "Specialist_Encounter": {
+            "type": "Encounter",
+            "encounter_class": "ambulatory",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "183847001",
+                    "display": "Encounter with specialist"
+                }
+            ],
+            "name": "Specialist_Encounter",
+            "direct_transition": "Specialist_Procedures_Distribution"
+        },
+        "Specialist_Procedures_Distribution": {
+            "type": "Simple",
+            "name": "Specialist_Procedures_Distribution",
+            "distributed_transition": [
+                {
+                    "transition": "Specialist_Procedure",
+                    "distribution": 0.6
+                },
+                {
+                    "transition": "Unnecessary_Specialist_Procedure",
+                    "distribution": 0.3
+                },
+                {
+                    "transition": "Specialist_Phantom_Charges",
+                    "distribution": 0.1
+                }
+            ]
+        },
+        "Specialist_Procedure": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "309001",
+                    "display": "Specialist procedure"
+                }
+            ],
+            "duration": {
+                "low": 20,
+                "high": 40,
+                "unit": "minutes"
+            },
+            "name": "Specialist_Procedure",
+            "direct_transition": "End_Specialist_Encounter"
+        },
+        "Unnecessary_Specialist_Procedure": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "441742003",
+                    "display": "Unnecessary specialist test"
+                }
+            ],
+            "duration": {
+                "low": 15,
+                "high": 30,
+                "unit": "minutes"
+            },
+            "name": "Unnecessary_Specialist_Procedure",
+            "direct_transition": "End_Specialist_Encounter"
+        },
+        "Specialist_Phantom_Charges": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "441742003",
+                    "display": "Phantom specialist test charge"
+                },
+                {
+                    "system": "SNOMED-CT",
+                    "code": "123456789",
+                    "display": "Phantom specialist MRI charge"
+                }
+            ],
+            "duration": {
+                "low": 0,
+                "high": 0,
+                "unit": "minutes"
+            },
+            "name": "Specialist_Phantom_Charges",
+            "direct_transition": "End_Specialist_Encounter"
+        },
+        "End_Specialist_Encounter": {
+            "type": "EncounterEnd",
+            "name": "End_Specialist_Encounter",
+            "direct_transition": "Delay_Before_Next_Specialist_Encounter"
+        },
+        "Delay_Before_Next_Specialist_Encounter": {
+            "type": "Delay",
+            "name": "Delay_Before_Next_Specialist_Encounter",
+            "exact": {
+                "quantity": 10,
+                "unit": "years"
+            },
+            "direct_transition": "Next_Encounter_Distribution"
+        },
+        "Delay_Before_Next_Routine_Encounter": {
+            "type": "Delay",
+            "name": "Delay_Before_Next_Routine_Encounter",
+            "exact": {
+                "quantity": 5,
+                "unit": "years"
+            },
+            "direct_transition": "Next_Encounter_Distribution"
+        },
+        "Delay_Before_Next_Flu_Encounter": {
+            "type": "Delay",
+            "name": "Delay_Before_Next_Flu_Encounter",
+            "exact": {
+                "quantity": 1,
+                "unit": "years"
+            },
+            "direct_transition": "Next_Encounter_Distribution"
+        },
+        "Next_Encounter_Distribution": {
+            "type": "Simple",
+            "name": "Next_Encounter_Distribution",
+            "remarks": [
+                "Randomly distribute to the next encounter."
+            ],
+            "distributed_transition": [
+                {
+                    "distribution": 0.25,
+                    "transition": "Flu_Test_Encounter"
+                },
+                {
+                    "distribution": 0.25,
+                    "transition": "Routine_Checkup_Encounter"
+                },
+                {
+                    "distribution": 0.25,
+                    "transition": "Specialist_Encounter"
+                },
+                {
+                    "distribution": 0.5,
+                    "transition": "Terminal"
+                }
+            ]
+        },
+        "Terminal": {
+            "type": "Terminal"
+        }
+    }
+}
