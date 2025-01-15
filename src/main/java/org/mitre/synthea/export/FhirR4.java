@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -167,6 +168,8 @@ import org.mitre.synthea.world.concepts.HealthRecord.Report;
 import org.mitre.synthea.world.geography.Location;
 
 public class FhirR4 {
+
+  private static Random random = new Random();
   // HAPI FHIR warns that the context creation is expensive, and should be performed
   // per-application, not per-record
   private static final FhirContext FHIR_CTX = FhirContext.forR4();
@@ -500,6 +503,10 @@ public class FhirR4 {
         BundleEntryComponent encounterClaim =
             encounterClaim(person, personEntry, bundle, encounterEntry, encounter);
 
+        // 20% chance of duplicate claim
+        if (random.nextDouble() < 0.2) {
+          encounterClaim(person, personEntry, bundle, encounterEntry, encounter);
+        }
         if (shouldExport(ExplanationOfBenefit.class)) {
           explanationOfBenefit(personEntry, bundle, encounterEntry, person,
               encounterClaim, encounter, encounter.claim);

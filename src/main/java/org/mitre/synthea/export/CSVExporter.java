@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.Random;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -163,6 +164,8 @@ public class CSVExporter {
    * when recreating a population using multiple threads.
    */
   private AtomicLong transactionId;
+
+  private Random random = new Random();
 
   /**
    * Constructor for the CSVExporter - initialize the specified files and store
@@ -485,6 +488,11 @@ public class CSVExporter {
       String payerID = encounter.claim.getPayer().uuid;
 
       claim(person, encounter.claim, encounter, encounterID, time);
+      
+      // 20% chance to call claim a second time
+      if (random.nextDouble() < 0.2) {
+        claim(person, encounter.claim, encounter, encounterID, time);
+      }
 
       for (HealthRecord.Entry condition : encounter.conditions) {
         /* condition to ignore codes other then retrieved from terminology url */
@@ -1598,7 +1606,7 @@ public class CSVExporter {
     // Main Claim
     simulateClaimProcess(person, claim, claimId, encounter, encounterID, claim.mainEntry,
         diagnosisCodes, departmentId, true);
-
+        
     // Each Entry...
     for (int i = 0; i < claim.items.size(); i++) {
       Claim.ClaimEntry claimEntry = claim.items.get(i);

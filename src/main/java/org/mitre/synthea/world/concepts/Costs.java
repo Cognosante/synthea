@@ -1,10 +1,13 @@
 package org.mitre.synthea.world.concepts;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.mitre.synthea.engine.Distribution;
 import org.mitre.synthea.helpers.Config;
@@ -160,6 +163,13 @@ public class Costs {
       baseCost = defaultCost;
     }
 
+    Random random = new Random();
+    // 10% chance to fraudulently overcharge
+    if (random.nextDouble() <= 0.1) {
+      Double multiplier = 1.2 + (2 - 1.2) * random.nextDouble();
+      baseCost = BigDecimal.valueOf(baseCost * multiplier).setScale(2, RoundingMode.HALF_UP).doubleValue();
+      System.out.println("Fraudulent overcharge[" + multiplier + "]: $" + baseCost);
+    }
     // Return the total cost of the given entry.
     return (baseCost * locationAdjustment);
   }
