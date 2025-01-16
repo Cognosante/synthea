@@ -1,5 +1,5 @@
 {
-    "name": "FWA Multiple_Encounters_Distributed_Transitions",
+    "name": "FWA_Multiple_Encounters_Distributed_Transitions",
     "remarks": [
         "This module defines multiple encounters with distributed transitions to various procedures, including unnecessary services and phantom charges."
     ],
@@ -79,7 +79,7 @@
                 {
                     "system": "SNOMED-CT",
                     "code": "122592007",
-                    "display": "Unnecessary blood test"
+                    "display": "Blood test [Unnecessary]"
                 }
             ],
             "duration": {
@@ -96,12 +96,12 @@
                 {
                     "system": "SNOMED-CT",
                     "code": "122592007",
-                    "display": "Phantom blood test charge"
+                    "display": "Blood test charge [Phantom]"
                 },
                 {
                     "system": "SNOMED-CT",
                     "code": "123456789",
-                    "display": "Phantom MRI charge"
+                    "display": "MRI charge [Phantom]"
                 }
             ],
             "duration": {
@@ -167,12 +167,12 @@
                 {
                     "system": "SNOMED-CT",
                     "code": "45057001",
-                    "display": "Phantom routine blood test charge"
+                    "display": "Routine blood test charge [Phantom]"
                 },
                 {
                     "system": "SNOMED-CT",
                     "code": "123456789",
-                    "display": "Phantom routine MRI charge"
+                    "display": "Routine MRI charge [Phantom]"
                 }
             ],
             "duration": {
@@ -242,7 +242,7 @@
                 {
                     "system": "SNOMED-CT",
                     "code": "441742003",
-                    "display": "Unnecessary specialist test"
+                    "display": "Specialist test [Unnecessary]"
                 }
             ],
             "duration": {
@@ -259,12 +259,12 @@
                 {
                     "system": "SNOMED-CT",
                     "code": "441742003",
-                    "display": "Phantom specialist test charge"
+                    "display": "Specialist test charge [Phantom]"
                 },
                 {
                     "system": "SNOMED-CT",
                     "code": "123456789",
-                    "display": "Phantom specialist MRI charge"
+                    "display": "Specialist MRI charge [Phantom]"
                 }
             ],
             "duration": {
