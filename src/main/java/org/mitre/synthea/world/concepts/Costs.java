@@ -168,7 +168,6 @@ public class Costs {
     if (random.nextDouble() <= 0.1) {
       Double multiplier = 1.2 + (2 - 1.2) * random.nextDouble();
       baseCost = BigDecimal.valueOf(baseCost * multiplier).setScale(2, RoundingMode.HALF_UP).doubleValue();
-      System.out.println("Fraudulent overcharge[" + multiplier + "]: $" + baseCost);
     }
     // Return the total cost of the given entry.
     return (baseCost * locationAdjustment);
