@@ -53,6 +53,10 @@
                 {
                     "transition": "Phantom_Charges",
                     "distribution": 0.3
+                },
+                {
+                    "transition": "Upcoded_Test",
+                    "distribution": 0.3
                 }
             ]
         },
@@ -110,6 +114,23 @@
                 "unit": "minutes"
             },
             "name": "Phantom_Charges",
+            "direct_transition": "End_Flu_Test_Encounter"
+        },
+        "Upcoded_Test": {
+            "type": "Procedure",
+            "codes": [
+                {
+                    "system": "SNOMED-CT",
+                    "code": "718355006",
+                    "display": "Respiratory pathogen test [Fraudulent Upcoding]" 
+                }
+            ],
+            "duration": {
+                "low": 0,
+                "high": 0,
+                "unit": "minutes"
+            },
+            "name": "Upcoded_Test",
             "direct_transition": "End_Flu_Test_Encounter"
         },
         "End_Flu_Test_Encounter": {
