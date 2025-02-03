@@ -227,6 +227,7 @@ public abstract class Exporter {
    * @param options Runtime exporter options
    */
   public static boolean export(Person person, long stopTime, ExporterRuntimeOptions options) {
+    System.out.println(" +++export " + person);
     boolean wasExported = false;
     if (options.deferExports) {
       wasExported = true;
@@ -237,6 +238,9 @@ public abstract class Exporter {
       }
       if (!person.alive(stopTime)) {
         filterAfterDeath(person);
+      }
+      if(Config.getAsBoolean("exporter.clear_all_clinical_data", false)) {
+        clearAllClinicalData(person);
       }
       if (person.hasMultipleRecords) {
         int i = 0;
@@ -698,7 +702,6 @@ public abstract class Exporter {
     } else {
       filtered.record = filterForExport(filtered.record, yearsToKeep, endTime);
     }
-
     return filtered;
   }
 
@@ -714,7 +717,6 @@ public abstract class Exporter {
    * @return Modified record with history expunged.
    */
   private static HealthRecord filterForExport(HealthRecord record, int yearsToKeep, long endTime) {
-
     long cutoffDate = endTime - Utilities.convertTime("years", yearsToKeep);
     Predicate<HealthRecord.Entry> notFutureDated = e -> e.start <= endTime;
     Predicate<HealthRecord.Entry> entryIsActive = e -> e.stop == 0L || e.stop > cutoffDate;
@@ -839,7 +841,8 @@ public abstract class Exporter {
         while (iter.hasNext()) {
           Encounter encounter = iter.next();
           if (encounter.start > deathTime
-              && !encounter.codes.contains(DeathModule.DEATH_CERTIFICATION)) {
+              && !encounter.codes.contains(DeathModule.DEATH_CERTIFICATION)
+              && !Config.getAsBoolean("exporter.keep_encounter_after_death", false)) {
             iter.remove();
           }
         }
@@ -849,11 +852,56 @@ public abstract class Exporter {
       while (iter.hasNext()) {
         Encounter encounter = iter.next();
         if (encounter.start > deathTime
-            && !encounter.codes.contains(DeathModule.DEATH_CERTIFICATION)) {
+            && !encounter.codes.contains(DeathModule.DEATH_CERTIFICATION) 
+            && !Config.getAsBoolean("exporter.keep_encounter_after_death", false)) {
           iter.remove();
-        }
+       }
       }
     }
+  }
+
+   /**
+   * We must clear all clinical data leaving claims to simulate not existent data.
+   *
+   * @param person The person.
+   */
+  private static void clearAllClinicalData(Person person) {
+    long deathTime = (long) person.attributes.get(Person.DEATHDATE);
+    if (person.hasMultipleRecords) {
+      for (HealthRecord record : person.records.values()) {
+        Iterator<Encounter> iter = record.encounters.iterator();
+        while (iter.hasNext()) {
+          Encounter encounter = iter.next();
+          // Clear the encounter but keep the claims
+          clearEncounter(encounter);
+        }
+      }
+    } else {
+      Iterator<Encounter> iter = person.record.encounters.iterator();
+      while (iter.hasNext()) {
+        Encounter encounter = iter.next();
+        // Clear the encounter but keep the claims
+        clearEncounter(encounter);
+      }
+    }
+  }
+
+  /**
+   * Clear encounter but keep the claims
+   *
+   * @param encounter The encounter to clear.
+   */
+
+  public static void clearEncounter(Encounter encounter) {
+    encounter.procedures.removeAll(encounter.procedures);
+    encounter.observations.removeAll(encounter.observations);
+    encounter.reports.removeAll(encounter.reports);
+    encounter.conditions.removeAll(encounter.conditions);
+    encounter.immunizations.removeAll(encounter.immunizations);
+    encounter.medications.removeAll(encounter.medications);
+    encounter.careplans.removeAll(encounter.careplans);
+    encounter.allergies.removeAll(encounter.allergies);
+    encounter.imagingStudies.removeAll(encounter.imagingStudies);
   }
 
   /**

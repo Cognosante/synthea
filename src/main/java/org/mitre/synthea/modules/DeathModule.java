@@ -13,6 +13,7 @@ import org.mitre.synthea.world.concepts.HealthRecord.Encounter;
 import org.mitre.synthea.world.concepts.HealthRecord.EncounterType;
 import org.mitre.synthea.world.concepts.HealthRecord.Observation;
 import org.mitre.synthea.world.concepts.HealthRecord.Report;
+import org.mitre.synthea.helpers.Utilities;
 
 public class DeathModule {
   public static final Code DEATH_CERTIFICATION = new Code("SNOMED-CT", "308646001",
@@ -49,8 +50,37 @@ public class DeathModule {
       person.record.encounterEnd(time, EncounterType.WELLNESS);
       // Do NOT release the DeathModule encounter, because no one should
       // be able to have an encounter after this one.
+
+
+      // adds post death encounter
+      addPostDeathEncounter(person, time);
     }
   }
+
+/**
+   * Adds post death encounter.
+   *
+   * @param person - the person who has died.
+   * @param time - the time of the death exam and certification.
+   */
+  public static void addPostDeathEncounter(Person person, long time) {
+       // Create another encounter after death
+      long postDeathTime = time + Utilities.convertTime("days", 1); 
+      System.out.println("DeathModule-postDeathTime: " + postDeathTime + "," + Utilities.timestampToLocalDate(postDeathTime));
+
+      Code enc = new Code("SNOMED-CT", "32485007", "Hospital admission (post death)");
+      Code reason = new Code("SNOMED-CT", "410620009", "Well child visit (post death)");
+
+      person.releaseCurrentEncounter(time, "DeathModule");
+      Encounter postDeathEncounter = EncounterModule.createEncounter(person, postDeathTime, EncounterType.AMBULATORY,
+          ClinicianSpecialty.GENERAL_PRACTICE, enc, "DeathModule");
+
+      postDeathEncounter.reason = reason;
+      postDeathEncounter.name = "Hospital admission (post death)";
+      person.record.encounterEnd(postDeathTime, EncounterType.AMBULATORY);
+  }
+
+
 
   /**
    * Get all of the Codes this module uses, for inventory purposes.
