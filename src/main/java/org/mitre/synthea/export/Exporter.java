@@ -865,7 +865,6 @@ public abstract class Exporter {
    * @param person The person.
    */
   private static void clearAllClinicalData(Person person) {
-    long deathTime = (long) person.attributes.get(Person.DEATHDATE);
     if (person.hasMultipleRecords) {
       for (HealthRecord record : person.records.values()) {
         Iterator<Encounter> iter = record.encounters.iterator();
