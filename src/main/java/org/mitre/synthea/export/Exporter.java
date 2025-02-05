@@ -227,7 +227,6 @@ public abstract class Exporter {
    * @param options Runtime exporter options
    */
   public static boolean export(Person person, long stopTime, ExporterRuntimeOptions options) {
-    System.out.println(" +++export " + person);
     boolean wasExported = false;
     if (options.deferExports) {
       wasExported = true;

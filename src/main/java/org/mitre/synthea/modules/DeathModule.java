@@ -66,7 +66,6 @@ public class DeathModule {
   public static void addPostDeathEncounter(Person person, long time) {
        // Create another encounter after death
       long postDeathTime = time + Utilities.convertTime("days", 1); 
-      System.out.println("DeathModule-postDeathTime: " + postDeathTime + "," + Utilities.timestampToLocalDate(postDeathTime));
 
       Code enc = new Code("SNOMED-CT", "32485007", "Hospital admission (post death)");
       Code reason = new Code("SNOMED-CT", "410620009", "Well child visit (post death)");
